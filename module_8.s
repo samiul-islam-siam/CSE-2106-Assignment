@@ -1,81 +1,58 @@
         AREA    module8_code, CODE, READONLY
-        EXPORT  main
+        ALIGN   2
+        EXPORT  aggregate_total_bill
 
-; ---------------------------------------------------------
-; RAM VARIABLES
-; ---------------------------------------------------------
-TREATMENT_COST      EQU     0x20000300
-ROOM_COST           EQU     0x20000304
-MEDICINE_COST       EQU     0x20000308
-LABTEST_COST        EQU     0x2000030C
+; Billing offsets relative to billing start (from data.s)
+BILLING_OFF             EQU     0x184
+TREATMENT_COST_OFF      EQU     0x00
+ROOM_COST_OFF           EQU     0x04
+MEDICINE_COST_OFF       EQU     0x08
+LAB_TEST_COST_OFF       EQU     0x0C
+TOTAL_BILL_OFF          EQU     0x10
+OVERFLOW_FLAG_OFF       EQU     0x14
 
-TOTAL_BILL          EQU     0x20000310
-OVERFLOW_FLAG       EQU     0x20000314      ; byte
+; void aggregate_total_bill(Patient *patient)
+; R0 = patient pointer
+aggregate_total_bill
+        PUSH    {LR}                ; preserve return address
 
-; ---------------------------------------------------------
-; MAIN PROGRAM
-; ---------------------------------------------------------
-main
+        ; Load billing fields (unsigned 32-bit)
+        LDR     R1, [R0, #BILLING_OFF + TREATMENT_COST_OFF]   ; treatment
+        LDR     R2, [R0, #BILLING_OFF + ROOM_COST_OFF]        ; room
+        LDR     R3, [R0, #BILLING_OFF + MEDICINE_COST_OFF]    ; medicine
+        LDR     R4, [R0, #BILLING_OFF + LAB_TEST_COST_OFF]    ; lab tests
 
-        ; Load billing components
-        LDR     R0, =TREATMENT_COST
-        LDR     R1, [R0]                    ; treatment
-
-        LDR     R0, =ROOM_COST
-        LDR     R2, [R0]                    ; room
-
-        LDR     R0, =MEDICINE_COST
-        LDR     R3, [R0]                    ; medicine
-
-        LDR     R0, =LABTEST_COST
-        LDR     R4, [R0]                    ; lab tests
-
-; ---------------------------------------------------------
-; total = treatment + room
-; ---------------------------------------------------------
+        ; total = treatment + room
         ADDS    R5, R1, R2
         CMP     R5, R1
-        BCC     OVERFLOW
+        BCC     .overflow_detected
 
-; ---------------------------------------------------------
-; total += medicine
-; ---------------------------------------------------------
+        ; total += medicine
         ADDS    R5, R5, R3
         CMP     R5, R3
-        BCC     OVERFLOW
+        BCC     .overflow_detected
 
-; ---------------------------------------------------------
-; total += lab tests
-; ---------------------------------------------------------
+        ; total += lab tests
         ADDS    R5, R5, R4
         CMP     R5, R4
-        BCC     OVERFLOW
+        BCC     .overflow_detected
 
-; ---------------------------------------------------------
-; SUCCESS: store total & clear overflow
-; ---------------------------------------------------------
-        LDR     R0, =TOTAL_BILL
-        STR     R5, [R0]
-
-        LDR     R0, =OVERFLOW_FLAG
+        ; no overflow: store total and clear overflow flag
+        STR     R5, [R0, #BILLING_OFF + TOTAL_BILL_OFF]
         MOVS    R6, #0
-        STRB    R6, [R0]
+        STRB    R6, [R0, #BILLING_OFF + OVERFLOW_FLAG_OFF]
+        B       .done
 
-        B       END_LOOP
-
-; ---------------------------------------------------------
-; OVERFLOW HANDLER
-; ---------------------------------------------------------
-OVERFLOW
-        LDR     R0, =TOTAL_BILL
+.overflow_detected
+        ; set total_bill = 0xFFFFFFFF
         LDR     R6, =0xFFFFFFFF
-        STR     R6, [R0]
+        STR     R6, [R0, #BILLING_OFF + TOTAL_BILL_OFF]
 
-        LDR     R0, =OVERFLOW_FLAG
+        ; set overflow_flag = 1
         MOVS    R6, #1
-        STRB    R6, [R0]
+        STRB    R6, [R0, #BILLING_OFF + OVERFLOW_FLAG_OFF]
 
-END_LOOP
-        B       END_LOOP
-
+.done
+        POP     {PC}                ; return
+        ALIGN   2
         END
