@@ -70,13 +70,21 @@ compute_treatment_cost PROC
         LDRB    R1, [R4, #TREATMENT_CODE_OFF]   ; R1 = treatment_code (byte)
 
         ; ======================================================================
-        ; Step 2: Validate treatment code is within range (0-15)
+        ; Step 2: Pre-calculate billing address (used in both paths)
+        ; patient->billing is at offset 0x184
+        ; Use MOVW for 16-bit offset since 0x184 > 255
+        ; ======================================================================
+        MOVW    R5, #BILLING_OFF        ; R5 = 0x184 (388)
+        ADD     R5, R4, R5              ; R5 = &patient->billing
+
+        ; ======================================================================
+        ; Step 3: Validate treatment code is within range (0-15)
         ; ======================================================================
         CMP     R1, #MAX_TREATMENT_CODE ; Compare with 16
         BGE     invalid_code            ; If code >= 16, it's invalid
 
         ; ======================================================================
-        ; Step 3: Look up cost from treatment_cost_table
+        ; Step 4: Look up cost from treatment_cost_table
         ; cost = treatment_cost_table[code]
         ; Address = table_base + (code * 4) using LSL for multiply by 4
         ; ======================================================================
@@ -85,13 +93,9 @@ compute_treatment_cost PROC
         LDR     R0, [R2, R3]            ; R0 = treatment_cost_table[code]
 
         ; ======================================================================
-        ; Step 4: Store cost in patient's billing structure
-        ; patient->billing.treatment_cost is at offset 0x184 + 0x00
-        ; Use MOVW for 16-bit offset since 0x184 > 255
+        ; Step 5: Store cost in patient's billing structure
         ; ======================================================================
-        MOVW    R5, #BILLING_OFF        ; R5 = 0x184 (388)
-        ADD     R2, R4, R5              ; R2 = &patient->billing
-        STR     R0, [R2, #TREATMENT_COST_OFF]   ; billing.treatment_cost = cost
+        STR     R0, [R5, #TREATMENT_COST_OFF]   ; billing.treatment_cost = cost
 
         ; Return successfully
         B       compute_done
@@ -101,9 +105,7 @@ invalid_code
         ; Handle invalid treatment code: set cost to 0
         ; ======================================================================
         MOV     R0, #0                  ; R0 = 0
-        MOVW    R5, #BILLING_OFF        ; R5 = 0x184 (388)
-        ADD     R2, R4, R5              ; R2 = &patient->billing
-        STR     R0, [R2, #TREATMENT_COST_OFF]   ; billing.treatment_cost = 0
+        STR     R0, [R5, #TREATMENT_COST_OFF]   ; billing.treatment_cost = 0
 
 compute_done
         POP     {R4-R5, PC}             ; Restore registers and return

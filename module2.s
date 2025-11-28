@@ -94,8 +94,7 @@ acquire_vital_signs PROC
         ; Step 3: Calculate address of vital_buffer[index]
         ; Address = patient_base + VITAL_BUFFER_OFF + (index * VITAL_SIZE)
         ; ======================================================================
-        MOV     R3, #VITAL_SIZE         ; R3 = 4 (size of VitalSign)
-        MUL     R3, R2, R3              ; R3 = index * 4
+        LSL     R3, R2, #2              ; R3 = index * 4 (shift left 2 = multiply by 4)
         ADD     R3, R4, R3              ; R3 = patient + (index * 4)
         ADD     R3, R3, #VITAL_BUFFER_OFF ; R3 = &patient->vital_buffer[index]
 

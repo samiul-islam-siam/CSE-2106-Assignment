@@ -132,6 +132,8 @@ inner_loop
         MOVW    R2, #PATIENT_STRUCT_SIZE ; R2 = bytes to swap (MOVW for 16-bit)
         
         ; Swap loop: swap 4 bytes at a time
+        ; Note: PATIENT_STRUCT_SIZE (412) is divisible by 4, so we process
+        ; exactly 103 words without any remainder bytes
 swap_loop
         CMP     R2, #0
         BLE     swap_done
