@@ -2,57 +2,40 @@
         EXPORT  main
 
 ; ---------------------------------------------------------
-; RAM VARIABLES (simulate Patient.billing section)
+; RAM VARIABLES
 ; ---------------------------------------------------------
-TREATMENT_COST      EQU     0x20000300      ; word
-ROOM_COST           EQU     0x20000304      ; word
-MEDICINE_COST       EQU     0x20000308      ; word
-LABTEST_COST        EQU     0x2000030C      ; word
+TREATMENT_COST      EQU     0x20000300
+ROOM_COST           EQU     0x20000304
+MEDICINE_COST       EQU     0x20000308
+LABTEST_COST        EQU     0x2000030C
 
-TOTAL_BILL          EQU     0x20000310      ; word
+TOTAL_BILL          EQU     0x20000310
 OVERFLOW_FLAG       EQU     0x20000314      ; byte
 
 ; ---------------------------------------------------------
-; MAIN PROGRAM — standalone Module 8
+; MAIN PROGRAM
 ; ---------------------------------------------------------
 main
 
-        ; ---------------------------------------------
-        ; Load the 4 billing components into registers
-        ; ---------------------------------------------
-
-        ; treatment
+        ; Load billing components
         LDR     R0, =TREATMENT_COST
-        LDR     R1, [R0]                       ; R1 = treatment
-        ; Example inject value:
-        LDR     R1, =5000
+        LDR     R1, [R0]                    ; treatment
 
-        ; room
         LDR     R0, =ROOM_COST
-        LDR     R2, [R0]                       ; R2 = room
-        ; Example inject:
-        LDR     R2, =7000
+        LDR     R2, [R0]                    ; room
 
-        ; medicine
         LDR     R0, =MEDICINE_COST
-        LDR     R3, [R0]                       ; R3 = medicine
-        ; Example inject:
-        LDR     R3, =3000
+        LDR     R3, [R0]                    ; medicine
 
-        ; lab tests
         LDR     R0, =LABTEST_COST
-        LDR     R4, [R0]                       ; R4 = labtests
-        ; Example inject:
-        LDR     R4, =2000
-
+        LDR     R4, [R0]                    ; lab tests
 
 ; ---------------------------------------------------------
 ; total = treatment + room
 ; ---------------------------------------------------------
         ADDS    R5, R1, R2
         CMP     R5, R1
-        BCC     OVERFLOW           ; overflow occurred
-
+        BCC     OVERFLOW
 
 ; ---------------------------------------------------------
 ; total += medicine
@@ -61,7 +44,6 @@ main
         CMP     R5, R3
         BCC     OVERFLOW
 
-
 ; ---------------------------------------------------------
 ; total += lab tests
 ; ---------------------------------------------------------
@@ -69,9 +51,8 @@ main
         CMP     R5, R4
         BCC     OVERFLOW
 
-
 ; ---------------------------------------------------------
-; SUCCESS — store total_bill and clear overflow flag
+; SUCCESS: store total & clear overflow
 ; ---------------------------------------------------------
         LDR     R0, =TOTAL_BILL
         STR     R5, [R0]
@@ -80,28 +61,21 @@ main
         MOVS    R6, #0
         STRB    R6, [R0]
 
-        B       DONE
-
+        B       END_LOOP
 
 ; ---------------------------------------------------------
-; OVERFLOW HANDLING
+; OVERFLOW HANDLER
 ; ---------------------------------------------------------
 OVERFLOW
-        ; total_bill = 0xFFFFFFFF
         LDR     R0, =TOTAL_BILL
         LDR     R6, =0xFFFFFFFF
         STR     R6, [R0]
 
-        ; overflow_flag = 1
         LDR     R0, =OVERFLOW_FLAG
         MOVS    R6, #1
         STRB    R6, [R0]
 
-
-; ---------------------------------------------------------
-; END OF PROGRAM LOOP
-; ---------------------------------------------------------
-DONE
-        B       DONE
+END_LOOP
+        B       END_LOOP
 
         END
