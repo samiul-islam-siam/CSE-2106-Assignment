@@ -1,55 +1,107 @@
-        AREA    module1_code, CODE, READONLY
-        EXPORT  main
+		AREA 	MODULE_1, CODE, READONLY
         THUMB
 
-; ---------------------------------------------------------
-; Predefined RAM location for the Patient Record
-PATIENT_BASE   	EQU     0x20000000      ; Start of patient record structure
+; Patient structure offsets
+PATIENT_ID_OFF          EQU     0x00
+NAME_PTR_OFF            EQU     0x04
+AGE_OFF                 EQU     0x08
+TREATMENT_CODE_OFF      EQU     0x09
+WARD_NUMBER_OFF         EQU     0x0A
+ROOM_DAILY_RATE_OFF     EQU     0x0C
+MEDICINE_LIST_PTR_OFF   EQU     0x10
+MEDICINE_COUNT_OFF      EQU     0x14
+ALERT_COUNT_OFF         EQU     0x15
+STAY_DAYS_OFF           EQU     0x16
+VITAL_BUFFER_OFF        EQU     0x18
+VITAL_BUFFER_INDEX_OFF  EQU     0x40
+ALERT_FLAG_OFF          EQU     0x41
+DOSAGE_DUE_FLAG_OFF     EQU     0x42
+ALERT_BUFFER_OFF        EQU     0x44
+BILLING_OFF             EQU     0x184
 
-; Test values
-PATIENT_ID     	EQU     0x12345678
-NAME_PTR       	EQU     0x20001000      ; Address of the name
-AGE_VALUE      	EQU     25
-WARD_NUMBER    	EQU     0x0032          
-TREATMENT_CODE 	EQU     0x07
-ROOM_RATE      	EQU     3500
-MED_LIST_PTR   	EQU     0x20002000      ; Address of the medical list
+        EXPORT 	patient_record_initialization
+			
+; void initialize_patient(Patient *patient, uint32_t id, char *name, uint8_t age,
+;                        uint16_t ward, uint8_t treatment_code,
+;                        uint32_t room_rate, Medicine *med_list, uint8_t med_count,
+;                        uint16_t stay_days)
 
-; ---------------------------------------------------------
-main
-        ; Load base pointer to R0
-        LDR     R0, =PATIENT_BASE
+patient_record_initialization
+        ; r0 = patient*
+        ; r1 = id
+        ; r2 = name*
+        ; r3 = age
+        ; stack args:
+        ; [sp]   = ward
+        ; [sp+4] = treatment_code
+        ; [sp+8] = room_rate
+        ; [sp+12]= med_list
+        ; [sp+16]= med_count
+        ; [sp+20]= stay_days
 
-        ; -------------------------------------------------
-        ; Store Patient ID (32-bit)
-        LDR     R1, =PATIENT_ID
-        STR     R1, [R0, #0]
+        LDR     r4, [sp, #0]        ; ward
+        LDR     r5, [sp, #4]        ; treatment_code
+        LDR     r6, [sp, #8]        ; room_rate
+        LDR     r7, [sp, #12]       ; med_list
+        LDR     r8, [sp, #16]       ; med_count
+        LDR     r9, [sp, #20]       ; stay_days
 
-        ; Store Name Pointer (32-bit)
-        LDR     R1, =NAME_PTR
-        STR     R1, [R0, #4]
+        PUSH    {r4-r7, lr}
 
-        ; Store Age (8-bit)
-        MOV     R1, #AGE_VALUE
-        STRB    R1, [R0, #8]
+        ; Write patient fields
+        STR     r1, [r0, #PATIENT_ID_OFF]
+        STR     r2, [r0, #NAME_PTR_OFF]
+        STRB    r3, [r0, #AGE_OFF]
+        STRB    r5, [r0, #TREATMENT_CODE_OFF]
+        STRH    r4, [r0, #WARD_NUMBER_OFF]
+        STR     r6, [r0, #ROOM_DAILY_RATE_OFF]
+        STR     r7, [r0, #MEDICINE_LIST_PTR_OFF]
+        STRB    r8, [r0, #MEDICINE_COUNT_OFF]
 
-        ; Store Ward Number (16-bit)
-        LDR     R1, =WARD_NUMBER
-        STRH    R1, [R0, #10]
+        ; alert_count = 0
+        MOVS    r10, #0
+        STRB    r10, [r0, #ALERT_COUNT_OFF]
 
-        ; Store Treatment Code (8-bit)
-        MOV     R1, #TREATMENT_CODE
-        STRB    R1, [R0, #12]
+        ; stay_days
+        STRH    r9, [r0, #STAY_DAYS_OFF]
 
-        ; Store Room Daily Rate (32-bit)
-        LDR     R1, =ROOM_RATE
-        STR     R1, [R0, #16]
+        ; Set flags = 0
+        STRB    r10, [r0, #VITAL_BUFFER_INDEX_OFF]
+        STRB    r10, [r0, #ALERT_FLAG_OFF]
+        STRB    r10, [r0, #DOSAGE_DUE_FLAG_OFF]
 
-        ; Store Medicine List Pointer (32-bit)
-        LDR     R1, =MED_LIST_PTR
-        STR     R1, [R0, #20]
+        ; ---------------------------------------------------------
+        ; Zero Billing (24 bytes)
+        ; ---------------------------------------------------------
+        ADD     r11, r0, #BILLING_OFF
+        MOVS    r12, #0
+        STR     r12, [r11, #0]
+        STR     r12, [r11, #4]
+        STR     r12, [r11, #8]
+        STR     r12, [r11, #12]
+        STR     r12, [r11, #16]
+        STR     r12, [r11, #20]     ; includes overflow_flag
 
-STOP
-        B       STOP
+        ; ---------------------------------------------------------
+        ; Zero vital_buffer (40 bytes = 10 words)
+        ; ---------------------------------------------------------
+        ADD     r11, r0, #VITAL_BUFFER_OFF
+        MOVS    r4, #10
+zero_vitals_loop
+        STR     r12, [r11], #4
+        SUBS    r4, r4, #1
+        BNE     zero_vitals_loop
 
-        END
+        ; ---------------------------------------------------------
+        ; Zero alert_buffer (320 bytes = 80 words)
+        ; ---------------------------------------------------------
+        ADD     r11, r0, #ALERT_BUFFER_OFF
+        MOVS    r4, #80
+zero_alert_loop
+        STR     r12, [r11], #4
+        SUBS    r4, r4, #1
+        BNE     zero_alert_loop
+
+        POP     {r4-r7, pc}
+        ALIGN
+		END
