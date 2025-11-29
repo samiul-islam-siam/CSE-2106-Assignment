@@ -1,15 +1,16 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1 & 2)
+; SmartCare-32: Complete Integration (Modules 1, 2 & 3)
 ; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
-        AREA    |. text|, CODE, READONLY
+        AREA    |.text|, CODE, READONLY
 
-        IMPORT  patient_record_initialization
-        IMPORT  acquire_vital_signs
+        IMPORT  patient_record_initialization   ; Module 1
+        IMPORT  acquire_vital_signs             ; Module 2
+        IMPORT  check_vital_thresholds          ; Module 3
         IMPORT  patient_array
         IMPORT  patient1_name
         IMPORT  patient2_name
@@ -18,6 +19,7 @@
         IMPORT  SENSOR_O2
         IMPORT  SENSOR_SBP
         IMPORT  SENSOR_DBP
+        IMPORT  system_clock
 
         EXPORT  main
 
@@ -28,6 +30,11 @@ main    PROC
         ; CHECKPOINT 1: Start
         ; ======================================================================
         MOVW    R11, #0x0001
+        
+        ; Initialize system_clock to a starting value
+        LDR     R0, =system_clock
+        MOV     R1, #100
+        STR     R1, [R0]                ; system_clock = 100
         
         ; ======================================================================
         ; MODULE 1: Initialize Patient 1 (John Doe)
@@ -52,7 +59,7 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0002            ; Checkpoint: Patient 1 initialized
+        MOVW    R11, #0x0002            ; Patient 1 initialized
         
         ; ======================================================================
         ; MODULE 1: Initialize Patient 2 (Jane Smith)
@@ -79,7 +86,7 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0003            ; Checkpoint: Patient 2 initialized
+        MOVW    R11, #0x0003            ; Patient 2 initialized
         
         ; ======================================================================
         ; MODULE 1: Initialize Patient 3 (Bob Wilson)
@@ -107,16 +114,16 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0004            ; Checkpoint: All patients initialized
+        MOVW    R11, #0x0004            ; All patients initialized
         
         ; ======================================================================
-        ; MODULE 2: Acquire Vitals for Patient 1 (Critical)
+        ; MODULE 2: Acquire Vitals for Patient 1 (Critical - triggers alerts)
         ; ======================================================================
         LDR     R0, =SENSOR_HR
-        MOV     R1, #125
+        MOV     R1, #125                ; triggers HR alert
         STRB    R1, [R0]
         LDR     R0, =SENSOR_O2
-        MOV     R1, #88
+        MOV     R1, #88                 ; triggers O2 alert
         STRB    R1, [R0]
         LDR     R0, =SENSOR_SBP
         MOV     R1, #135
@@ -128,10 +135,18 @@ main    PROC
         LDR     R0, =patient_array
         BL      acquire_vital_signs
         
-        MOVW    R11, #0x0005            ; Checkpoint: Patient 1 vitals acquired
+        MOVW    R11, #0x0005            ; Patient 1 vitals acquired
         
         ; ======================================================================
-        ; MODULE 2: Acquire Vitals for Patient 2 (Stable)
+        ; MODULE 3: Check thresholds for Patient 1
+        ; ======================================================================
+        LDR     R0, =patient_array
+        BL      check_vital_thresholds  ; HR + O2 alerts
+        
+        MOVW    R11, #0x0006            ; Patient 1 alerts checked
+        
+        ; ======================================================================
+        ; MODULE 2: Acquire Vitals for Patient 2 (Stable - no alerts)
         ; ======================================================================
         LDR     R0, =SENSOR_HR
         MOV     R1, #78
@@ -151,10 +166,20 @@ main    PROC
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         
-        MOVW    R11, #0x0006            ; Checkpoint: Patient 2 vitals acquired
+        MOVW    R11, #0x0007            ; Patient 2 vitals acquired
         
         ; ======================================================================
-        ; MODULE 2: Acquire Vitals for Patient 3 (Critical)
+        ; MODULE 3: Check thresholds for Patient 2
+        ; ======================================================================
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      check_vital_thresholds
+        
+        MOVW    R11, #0x0008            ; Patient 2 alerts checked
+        
+        ; ======================================================================
+        ; MODULE 2: Acquire Vitals for Patient 3 (Critical - triggers alerts)
         ; ======================================================================
         LDR     R0, =SENSOR_HR
         MOV     R1, #165
@@ -175,10 +200,21 @@ main    PROC
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         
-        MOVW    R11, #0x0007            ; Checkpoint: All vitals acquired
+        MOVW    R11, #0x0009            ; Patient 3 vitals acquired
         
         ; ======================================================================
-        ; SUCCESS! 
+        ; MODULE 3: Check thresholds for Patient 3
+        ; ======================================================================
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      check_vital_thresholds  ; HR + O2 + BP alerts
+        
+        MOVW    R11, #0x000A            ; Patient 3 alerts checked
+        
+        ; ======================================================================
+        ; SUCCESS!
         ; ======================================================================
         MOVW    R0, #0xDEAD
         MOVT    R0, #0xBEEF             ; R0 = 0xBEEFDEAD
