@@ -1,164 +1,192 @@
 ; ==============================================================================
-; SmartCare-32: Healthcare Monitoring & Billing System
-; File: main.s - Main Integration Program (Module 1 Only)
+; SmartCare-32: Complete Integration (Modules 1 & 2)
+; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
-
         AREA    |. text|, CODE, READONLY
 
-; ==============================================================================
-; IMPORTS FROM MODULE 1
-; ==============================================================================
         IMPORT  patient_record_initialization
-
-; ==============================================================================
-; IMPORTS FROM DATA SECTION
-; ==============================================================================
+        IMPORT  acquire_vital_signs
         IMPORT  patient_array
         IMPORT  patient1_name
         IMPORT  patient2_name
         IMPORT  patient3_name
+        IMPORT  SENSOR_HR
+        IMPORT  SENSOR_O2
+        IMPORT  SENSOR_SBP
+        IMPORT  SENSOR_DBP
 
-; ==============================================================================
-; EXPORTS
-; ==============================================================================
         EXPORT  main
 
-; ==============================================================================
-; CONSTANTS
-; ==============================================================================
-PATIENT_SIZE    EQU     412             ; Size of each patient structure
+PATIENT_SIZE    EQU     412
 
-; ==============================================================================
-; MAIN ENTRY POINT - Testing Module 1
-; ==============================================================================
 main    PROC
         ; ======================================================================
-        ; TEST MODULE 1: Initialize Patient 1 (John Doe)
+        ; CHECKPOINT 1: Start
         ; ======================================================================
-        ; Prepare stack parameters (push in REVERSE order - last param first)
-        MOV     R0, #7                  ; stay_days = 7
+        MOVW    R11, #0x0001
+        
+        ; ======================================================================
+        ; MODULE 1: Initialize Patient 1 (John Doe)
+        ; ======================================================================
+        MOV     R0, #7
+        PUSH    {R0}
+        MOV     R0, #3
+        PUSH    {R0}
+        MOV     R0, #0
+        PUSH    {R0}
+        MOVW    R0, #2000
+        PUSH    {R0}
+        MOV     R0, #5
+        PUSH    {R0}
+        MOV     R0, #101
         PUSH    {R0}
         
-        MOV     R0, #3                  ; medicine_count = 3
-        PUSH    {R0}
-        
-        MOV     R0, #0                  ; medicine_list_ptr = NULL
-        PUSH    {R0}
-        
-        MOV     R0, #2000               ; room_daily_rate = 2000
-        PUSH    {R0}
-        
-        MOV     R0, #5                  ; treatment_code = 5 (ICU)
-        PUSH    {R0}
-        
-        MOV     R0, #101                ; ward_number = 101
-        PUSH    {R0}
-        
-        ; Prepare register parameters
-        LDR     R0, =patient_array      ; R0 = patient pointer
-        MOV     R1, #1001               ; R1 = patient_id = 1001
-        MOVW    R1, #1001               ; Use MOVW for clarity
-        LDR     R2, =patient1_name      ; R2 = name pointer
-        MOV     R3, #45                 ; R3 = age = 45
-        
-        ; Call initialization function
+        LDR     R0, =patient_array
+        MOVW    R1, #1001
+        LDR     R2, =patient1_name
+        MOV     R3, #45
         BL      patient_record_initialization
-        
-        ; Clean up stack (6 parameters × 4 bytes = 24 bytes)
         ADD     SP, SP, #24
         
+        MOVW    R11, #0x0002            ; Checkpoint: Patient 1 initialized
+        
         ; ======================================================================
-        ; TEST MODULE 1: Initialize Patient 2 (Jane Smith)
+        ; MODULE 1: Initialize Patient 2 (Jane Smith)
         ; ======================================================================
-        ; Push stack parameters for Patient 2
-        MOV     R0, #12                 ; stay_days = 12
+        MOV     R0, #12
+        PUSH    {R0}
+        MOV     R0, #2
+        PUSH    {R0}
+        MOV     R0, #0
+        PUSH    {R0}
+        MOVW    R0, #5000
+        PUSH    {R0}
+        MOV     R0, #2
+        PUSH    {R0}
+        MOV     R0, #102
         PUSH    {R0}
         
-        MOV     R0, #2                  ; medicine_count = 2
-        PUSH    {R0}
-        
-        MOV     R0, #0                  ; medicine_list_ptr = NULL
-        PUSH    {R0}
-        
-        MOV     R0, #5000               ; room_daily_rate = 5000
-        PUSH    {R0}
-        
-        MOV     R0, #2                  ; treatment_code = 2 (Major surgery)
-        PUSH    {R0}
-        
-        MOV     R0, #102                ; ward_number = 102
-        PUSH    {R0}
-        
-        ; Register parameters for Patient 2
         LDR     R0, =patient_array
-        ADD     R0, R0, #PATIENT_SIZE   ; R0 = &patient_array[1]
-        MOVW    R1, #1002               ; patient_id = 1002
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        MOVW    R1, #1002
         LDR     R2, =patient2_name
-        MOV     R3, #32                 ; age = 32
-        
+        MOV     R3, #32
         BL      patient_record_initialization
-        
-        ; Clean up stack
         ADD     SP, SP, #24
         
+        MOVW    R11, #0x0003            ; Checkpoint: Patient 2 initialized
+        
         ; ======================================================================
-        ; TEST MODULE 1: Initialize Patient 3 (Bob Wilson)
+        ; MODULE 1: Initialize Patient 3 (Bob Wilson)
         ; ======================================================================
-        ; Push stack parameters for Patient 3
-        MOV     R0, #5                  ; stay_days = 5
+        MOV     R0, #5
+        PUSH    {R0}
+        MOV     R0, #1
+        PUSH    {R0}
+        MOV     R0, #0
+        PUSH    {R0}
+        MOVW    R0, #3000
+        PUSH    {R0}
+        MOV     R0, #6
+        PUSH    {R0}
+        MOVW    R0, #201
         PUSH    {R0}
         
-        MOV     R0, #1                  ; medicine_count = 1
-        PUSH    {R0}
-        
-        MOV     R0, #0                  ; medicine_list_ptr = NULL
-        PUSH    {R0}
-        
-        MOV     R0, #3000               ; room_daily_rate = 3000
-        PUSH    {R0}
-        
-        MOV     R0, #6                  ; treatment_code = 6 (Emergency)
-        PUSH    {R0}
-        
-        MOV     R0, #201                ; ward_number = 201
-        PUSH    {R0}
-        
-        ; Register parameters for Patient 3
         LDR     R0, =patient_array
-        MOV     R1, #PATIENT_SIZE
-        LSL     R1, R1, #1              ; R1 = PATIENT_SIZE * 2
-        ADD     R0, R0, R1              ; R0 = &patient_array[2]
-        MOVW    R1, #1003               ; patient_id = 1003
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        MOVW    R1, #1003
         LDR     R2, =patient3_name
-        MOV     R3, #67                 ; age = 67
-        
+        MOV     R3, #67
         BL      patient_record_initialization
-        
-        ; Clean up stack
         ADD     SP, SP, #24
         
-        ; ======================================================================
-        ; ALL THREE PATIENTS INITIALIZED!
-        ; You can now inspect memory at patient_array to verify
-        ; ======================================================================
-        
-        ; Set a marker value in R0 to indicate success
-        MOVW    R0, #0xAAAA
-        MOVT    R0, #0x5555             ; R0 = 0x5555AAAA (success marker)
+        MOVW    R11, #0x0004            ; Checkpoint: All patients initialized
         
         ; ======================================================================
-        ; INFINITE LOOP - Stay here for debugging
+        ; MODULE 2: Acquire Vitals for Patient 1 (Critical)
         ; ======================================================================
+        LDR     R0, =SENSOR_HR
+        MOV     R1, #125
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_O2
+        MOV     R1, #88
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_SBP
+        MOV     R1, #135
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_DBP
+        MOV     R1, #85
+        STRB    R1, [R0]
+        
+        LDR     R0, =patient_array
+        BL      acquire_vital_signs
+        
+        MOVW    R11, #0x0005            ; Checkpoint: Patient 1 vitals acquired
+        
+        ; ======================================================================
+        ; MODULE 2: Acquire Vitals for Patient 2 (Stable)
+        ; ======================================================================
+        LDR     R0, =SENSOR_HR
+        MOV     R1, #78
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_O2
+        MOV     R1, #98
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_SBP
+        MOV     R1, #120
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_DBP
+        MOV     R1, #80
+        STRB    R1, [R0]
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      acquire_vital_signs
+        
+        MOVW    R11, #0x0006            ; Checkpoint: Patient 2 vitals acquired
+        
+        ; ======================================================================
+        ; MODULE 2: Acquire Vitals for Patient 3 (Critical)
+        ; ======================================================================
+        LDR     R0, =SENSOR_HR
+        MOV     R1, #165
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_O2
+        MOV     R1, #85
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_SBP
+        MOV     R1, #170
+        STRB    R1, [R0]
+        LDR     R0, =SENSOR_DBP
+        MOV     R1, #95
+        STRB    R1, [R0]
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      acquire_vital_signs
+        
+        MOVW    R11, #0x0007            ; Checkpoint: All vitals acquired
+        
+        ; ======================================================================
+        ; SUCCESS! 
+        ; ======================================================================
+        MOVW    R0, #0xDEAD
+        MOVT    R0, #0xBEEF             ; R0 = 0xBEEFDEAD
+        
 infinite_loop
-        NOP                             ; Breakpoint here to check memory
         NOP
         B       infinite_loop
         
         ENDP
-
         ALIGN
         END
