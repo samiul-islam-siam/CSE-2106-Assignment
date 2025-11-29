@@ -1,5 +1,5 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1, 2 & 3)
+; SmartCare-32: Complete Integration (Modules 1, 2, 3 & 4)
 ; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
@@ -11,6 +11,7 @@
         IMPORT  patient_record_initialization   ; Module 1
         IMPORT  acquire_vital_signs             ; Module 2
         IMPORT  check_vital_thresholds          ; Module 3
+        IMPORT  medicine_administration_scheduler ; Module 4
         IMPORT  patient_array
         IMPORT  patient1_name
         IMPORT  patient2_name
@@ -23,18 +24,19 @@
 
         EXPORT  main
 
-PATIENT_SIZE    EQU     412
+PATIENT_SIZE            EQU     412
+DOSAGE_DUE_FLAG_OFF     EQU     0x42
 
 main    PROC
         ; ======================================================================
-        ; CHECKPOINT 1: Start
+        ; CHECKPOINT 1: Initialize system_clock
         ; ======================================================================
         MOVW    R11, #0x0001
         
-        ; Initialize system_clock to a starting value
         LDR     R0, =system_clock
-        MOV     R1, #100
-        STR     R1, [R0]                ; system_clock = 100
+        MOVW    R1, #0
+        MOVT    R1, #0                  ; system_clock = 0 (start time)
+        STR     R1, [R0]
         
         ; ======================================================================
         ; MODULE 1: Initialize Patient 1 (John Doe)
@@ -117,13 +119,15 @@ main    PROC
         MOVW    R11, #0x0004            ; All patients initialized
         
         ; ======================================================================
-        ; MODULE 2: Acquire Vitals for Patient 1 (Critical - triggers alerts)
+        ; SIMULATION CYCLE 1: Time = 0
         ; ======================================================================
+        
+        ; MODULE 2: Acquire Vitals for Patient 1 (Critical)
         LDR     R0, =SENSOR_HR
-        MOV     R1, #125                ; triggers HR alert
+        MOV     R1, #125
         STRB    R1, [R0]
         LDR     R0, =SENSOR_O2
-        MOV     R1, #88                 ; triggers O2 alert
+        MOV     R1, #88
         STRB    R1, [R0]
         LDR     R0, =SENSOR_SBP
         MOV     R1, #135
@@ -137,17 +141,19 @@ main    PROC
         
         MOVW    R11, #0x0005            ; Patient 1 vitals acquired
         
-        ; ======================================================================
         ; MODULE 3: Check thresholds for Patient 1
-        ; ======================================================================
         LDR     R0, =patient_array
-        BL      check_vital_thresholds  ; HR + O2 alerts
+        BL      check_vital_thresholds
         
         MOVW    R11, #0x0006            ; Patient 1 alerts checked
         
-        ; ======================================================================
-        ; MODULE 2: Acquire Vitals for Patient 2 (Stable - no alerts)
-        ; ======================================================================
+        ; MODULE 4: Check medicine schedule for Patient 1
+        LDR     R0, =patient_array
+        BL      medicine_administration_scheduler
+        
+        MOVW    R11, #0x0007            ; Patient 1 medicine checked
+        
+        ; MODULE 2: Acquire Vitals for Patient 2 (Stable)
         LDR     R0, =SENSOR_HR
         MOV     R1, #78
         STRB    R1, [R0]
@@ -166,21 +172,25 @@ main    PROC
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         
-        MOVW    R11, #0x0007            ; Patient 2 vitals acquired
+        MOVW    R11, #0x0008            ; Patient 2 vitals acquired
         
-        ; ======================================================================
         ; MODULE 3: Check thresholds for Patient 2
-        ; ======================================================================
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      check_vital_thresholds
         
-        MOVW    R11, #0x0008            ; Patient 2 alerts checked
+        MOVW    R11, #0x0009            ; Patient 2 alerts checked
         
-        ; ======================================================================
-        ; MODULE 2: Acquire Vitals for Patient 3 (Critical - triggers alerts)
-        ; ======================================================================
+        ; MODULE 4: Check medicine schedule for Patient 2
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      medicine_administration_scheduler
+        
+        MOVW    R11, #0x000A            ; Patient 2 medicine checked
+        
+        ; MODULE 2: Acquire Vitals for Patient 3 (Critical)
         LDR     R0, =SENSOR_HR
         MOV     R1, #165
         STRB    R1, [R0]
@@ -200,21 +210,72 @@ main    PROC
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         
-        MOVW    R11, #0x0009            ; Patient 3 vitals acquired
+        MOVW    R11, #0x000B            ; Patient 3 vitals acquired
         
-        ; ======================================================================
         ; MODULE 3: Check thresholds for Patient 3
-        ; ======================================================================
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
-        BL      check_vital_thresholds  ; HR + O2 + BP alerts
+        BL      check_vital_thresholds
         
-        MOVW    R11, #0x000A            ; Patient 3 alerts checked
+        MOVW    R11, #0x000C            ; Patient 3 alerts checked
+        
+        ; MODULE 4: Check medicine schedule for Patient 3
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      medicine_administration_scheduler
+        
+        MOVW    R11, #0x000D            ; Patient 3 medicine checked
         
         ; ======================================================================
-        ; SUCCESS!
+        ; ADVANCE TIME: Simulate 6 hours = 21600 seconds
+        ; ======================================================================
+        LDR     R0, =system_clock
+        LDR     R1, [R0]
+        MOVW    R2, #0x5460             ; 21600 = 0x5460
+        ADD     R1, R1, R2
+        STR     R1, [R0]                ; system_clock = 21600
+        
+        MOVW    R11, #0x000E            ; Time advanced
+        
+        ; ======================================================================
+        ; SIMULATION CYCLE 2: Time = 21600 (6 hours later)
+        ; Check if medicines are due
+        ; ======================================================================
+        
+        ; MODULE 4: Check medicine schedule for Patient 1 (should trigger if interval <= 6h)
+        LDR     R0, =patient_array
+        BL      medicine_administration_scheduler
+        
+        MOVW    R11, #0x000F            ; Patient 1 medicine re-checked
+        
+        ; Check dosage_due_flag for Patient 1
+        LDR     R0, =patient_array
+        LDRB    R1, [R0, #DOSAGE_DUE_FLAG_OFF]
+        ; R1 now contains dosage_due_flag (0 or 1)
+        
+        ; MODULE 4: Check medicine schedule for Patient 2
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      medicine_administration_scheduler
+        
+        MOVW    R11, #0x0010            ; Patient 2 medicine re-checked
+        
+        ; MODULE 4: Check medicine schedule for Patient 3
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      medicine_administration_scheduler
+        
+        MOVW    R11, #0x0011            ; Patient 3 medicine re-checked
+        
+        ; ======================================================================
+        ; SUCCESS! 
         ; ======================================================================
         MOVW    R0, #0xDEAD
         MOVT    R0, #0xBEEF             ; R0 = 0xBEEFDEAD
