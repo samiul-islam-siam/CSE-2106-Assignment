@@ -1,18 +1,20 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1, 2, 3, 4 & 5)
+; SmartCare-32: Complete Integration (Modules 1, 2, 3, 4, 5, 6 & 7)
 ; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
-        AREA    |. text|, CODE, READONLY
+        AREA    |.text|, CODE, READONLY
 
-        IMPORT  patient_record_initialization   ; Module 1
-        IMPORT  acquire_vital_signs             ; Module 2
-        IMPORT  check_vital_thresholds          ; Module 3
-        IMPORT  medicine_administration_scheduler ; Module 4
-        IMPORT  compute_treatment_cost          ; Module 5
+        IMPORT  patient_record_initialization
+        IMPORT  acquire_vital_signs
+        IMPORT  check_vital_thresholds
+        IMPORT  medicine_administration_scheduler
+        IMPORT  compute_treatment_cost
+        IMPORT  compute_room_cost
+        IMPORT  medicine_billing_module
         IMPORT  patient_array
         IMPORT  patient1_name
         IMPORT  patient2_name
@@ -28,20 +30,18 @@
 PATIENT_SIZE            EQU     412
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 BILLING_OFF             EQU     0x184
+MEDICINE_COST_OFF       EQU     0x08
 
 main    PROC
-        ; ======================================================================
-        ; CHECKPOINT 1: Initialize system_clock
-        ; ======================================================================
         MOVW    R11, #0x0001
         
         LDR     R0, =system_clock
         MOVW    R1, #0
-        MOVT    R1, #0                  ; system_clock = 0
+        MOVT    R1, #0
         STR     R1, [R0]
         
         ; ======================================================================
-        ; MODULE 1: Initialize Patient 1 (John Doe)
+        ; Initialize Patient 1
         ; ======================================================================
         MOV     R0, #7
         PUSH    {R0}
@@ -63,18 +63,22 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0002            ; Patient 1 initialized
+        MOVW    R11, #0x0002
         
-        ; ======================================================================
-        ; MODULE 5: Compute treatment cost for Patient 1
-        ; ======================================================================
         LDR     R0, =patient_array
-        BL      compute_treatment_cost  ; Lookup code 5 (ICU) = 25000
+        BL      compute_treatment_cost
+        MOVW    R11, #0x0003
         
-        MOVW    R11, #0x0003            ; Patient 1 cost computed
+        LDR     R0, =patient_array
+        BL      compute_room_cost
+        MOVW    R11, #0x0004
+        
+        LDR     R0, =patient_array
+        BL      medicine_billing_module
+        MOVW    R11, #0x0005
         
         ; ======================================================================
-        ; MODULE 1: Initialize Patient 2 (Jane Smith)
+        ; Initialize Patient 2
         ; ======================================================================
         MOV     R0, #12
         PUSH    {R0}
@@ -98,20 +102,28 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0004            ; Patient 2 initialized
+        MOVW    R11, #0x0006
         
-        ; ======================================================================
-        ; MODULE 5: Compute treatment cost for Patient 2
-        ; ======================================================================
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
-        BL      compute_treatment_cost  ; Lookup code 2 (Major surgery) = 50000
+        BL      compute_treatment_cost
+        MOVW    R11, #0x0007
         
-        MOVW    R11, #0x0005            ; Patient 2 cost computed
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      compute_room_cost
+        MOVW    R11, #0x0008
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      medicine_billing_module
+        MOVW    R11, #0x0009
         
         ; ======================================================================
-        ; MODULE 1: Initialize Patient 3 (Bob Wilson)
+        ; Initialize Patient 3
         ; ======================================================================
         MOV     R0, #5
         PUSH    {R0}
@@ -136,21 +148,31 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0006            ; Patient 3 initialized
+        MOVW    R11, #0x000A
         
-        ; ======================================================================
-        ; MODULE 5: Compute treatment cost for Patient 3
-        ; ======================================================================
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
-        BL      compute_treatment_cost  ; Lookup code 6 (Emergency) = 30000
+        BL      compute_treatment_cost
+        MOVW    R11, #0x000B
         
-        MOVW    R11, #0x0007            ; Patient 3 cost computed
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      compute_room_cost
+        MOVW    R11, #0x000C
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      medicine_billing_module
+        MOVW    R11, #0x000D
         
         ; ======================================================================
-        ; MODULE 2 & 3 & 4: Patient 1
+        ; Vitals for Patient 1
         ; ======================================================================
         LDR     R0, =SENSOR_HR
         MOV     R1, #125
@@ -167,18 +189,18 @@ main    PROC
         
         LDR     R0, =patient_array
         BL      acquire_vital_signs
-        MOVW    R11, #0x0008
+        MOVW    R11, #0x000E
         
         LDR     R0, =patient_array
         BL      check_vital_thresholds
-        MOVW    R11, #0x0009
+        MOVW    R11, #0x000F
         
         LDR     R0, =patient_array
         BL      medicine_administration_scheduler
-        MOVW    R11, #0x000A
+        MOVW    R11, #0x0010
         
         ; ======================================================================
-        ; MODULE 2 & 3 & 4: Patient 2
+        ; Vitals for Patient 2
         ; ======================================================================
         LDR     R0, =SENSOR_HR
         MOV     R1, #78
@@ -197,22 +219,22 @@ main    PROC
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      acquire_vital_signs
-        MOVW    R11, #0x000B
+        MOVW    R11, #0x0011
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      check_vital_thresholds
-        MOVW    R11, #0x000C
+        MOVW    R11, #0x0012
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
-        MOVW    R11, #0x000D
+        MOVW    R11, #0x0013
         
         ; ======================================================================
-        ; MODULE 2 & 3 & 4: Patient 3
+        ; Vitals for Patient 3
         ; ======================================================================
         LDR     R0, =SENSOR_HR
         MOV     R1, #165
@@ -232,27 +254,24 @@ main    PROC
         LSL     R10, R10, #1
         ADD     R0, R0, R10
         BL      acquire_vital_signs
-        MOVW    R11, #0x000E
+        MOVW    R11, #0x0014
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
         BL      check_vital_thresholds
-        MOVW    R11, #0x000F
+        MOVW    R11, #0x0015
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
-        MOVW    R11, #0x0010
+        MOVW    R11, #0x0016
         
-        ; ======================================================================
-        ; SUCCESS! 
-        ; ======================================================================
         MOVW    R0, #0xDEAD
-        MOVT    R0, #0xBEEF             ; R0 = 0xBEEFDEAD
+        MOVT    R0, #0xBEEF
         
 infinite_loop
         NOP
