@@ -27,7 +27,7 @@ compute_room_cost
 
         ; if (days <= 10) -> skip discount
         CMP     R2, #DISCOUNT_THRESHOLD
-        BLE     .store_room_cost
+        BLE     store_room_cost
 
         ; apply discount: room_cost = room_cost * 95 / 100
         MOV     R4, #DISCOUNT_PERCENT
@@ -35,7 +35,7 @@ compute_room_cost
         MOV     R4, #100
         UDIV    R3, R3, R4          ; R3 = R3 / 100
 
-.store_room_cost
+store_room_cost
         ; store into patient->billing.room_cost
         STR     R3, [R0, #BILLING_OFF + ROOM_COST_OFF]
 

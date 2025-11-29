@@ -25,25 +25,25 @@ aggregate_total_bill
         ; total = treatment + room
         ADDS    R5, R1, R2
         CMP     R5, R1
-        BCC     .overflow_detected
+        BCC     overflow_detected
 
         ; total += medicine
         ADDS    R5, R5, R3
         CMP     R5, R3
-        BCC     .overflow_detected
+        BCC     overflow_detected
 
         ; total += lab tests
         ADDS    R5, R5, R4
         CMP     R5, R4
-        BCC     .overflow_detected
+        BCC     overflow_detected
 
         ; no overflow: store total and clear overflow flag
         STR     R5, [R0, #BILLING_OFF + TOTAL_BILL_OFF]
         MOVS    R6, #0
         STRB    R6, [R0, #BILLING_OFF + OVERFLOW_FLAG_OFF]
-        B       .done
+        B       done
 
-.overflow_detected
+overflow_detected
         ; set total_bill = 0xFFFFFFFF
         LDR     R6, =0xFFFFFFFF
         STR     R6, [R0, #BILLING_OFF + TOTAL_BILL_OFF]
@@ -52,7 +52,7 @@ aggregate_total_bill
         MOVS    R6, #1
         STRB    R6, [R0, #BILLING_OFF + OVERFLOW_FLAG_OFF]
 
-.done
+done
         POP     {PC}                ; return
         ALIGN   2
         END
