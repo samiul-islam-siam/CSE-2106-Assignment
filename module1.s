@@ -80,7 +80,7 @@ patient_record_initialization PROC
         STR     R3, [R2, #0]
         STR     R3, [R2, #4]
         STR     R3, [R2, #8]
-        STR     R3, [R2, #12]
+        ;STR     R3, [R2, #12]
         STR     R3, [R2, #16]
         STR     R3, [R2, #20]
         
