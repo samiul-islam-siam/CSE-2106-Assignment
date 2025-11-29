@@ -1,12 +1,12 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1-8)
+; SmartCare-32: Complete Integration (Modules 1-9)
 ; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
-        AREA    |.text|, CODE, READONLY
+        AREA    |. text|, CODE, READONLY
 
         IMPORT  patient_record_initialization
         IMPORT  acquire_vital_signs
@@ -16,6 +16,7 @@
         IMPORT  compute_room_cost
         IMPORT  medicine_billing_module
         IMPORT  aggregate_total_bill
+        IMPORT  sort_patients_by_criticality
         IMPORT  patient_array
         IMPORT  patient1_name
         IMPORT  patient2_name
@@ -29,9 +30,8 @@
         EXPORT  main
 
 PATIENT_SIZE            EQU     412
-DOSAGE_DUE_FLAG_OFF     EQU     0x42
-BILLING_OFF             EQU     0x184
-TOTAL_BILL_OFF          EQU     0x10
+PATIENT_ID_OFF          EQU     0x00
+ALERT_COUNT_OFF         EQU     0x15
 
 main    PROC
         MOVW    R11, #0x0001
@@ -287,6 +287,14 @@ main    PROC
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
         MOVW    R11, #0x0019
+        
+        ; ======================================================================
+        ; MODULE 9: Sort patients by criticality (alert_count descending)
+        ; ======================================================================
+        LDR     R0, =patient_array
+        MOV     R1, #3
+        BL      sort_patients_by_criticality
+        MOVW    R11, #0x001A
         
         MOVW    R0, #0xDEAD
         MOVT    R0, #0xBEEF
