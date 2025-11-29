@@ -1,6 +1,6 @@
 ; ==============================================================================
-; SmartCare-32: Module 1 - Patient Record Initialization
-; File: module1.s
+; SmartCare-32: Module 1 - Patient Record Initialization (STACK FIX)
+; File: module1. s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
@@ -12,7 +12,7 @@
         EXPORT  patient_record_initialization
 
 ; ==============================================================================
-; CONSTANTS - Patient structure offsets
+; CONSTANTS
 ; ==============================================================================
 PATIENT_ID_OFF          EQU     0x00
 NAME_PTR_OFF            EQU     0x04
@@ -33,35 +33,20 @@ BILLING_OFF             EQU     0x184
 
 ; ==============================================================================
 ; FUNCTION: patient_record_initialization
-; Description: Initialize all fields of a Patient structure
-; Parameters:
-;   R0 = patient pointer
-;   R1 = patient_id (32-bit)
-;   R2 = name pointer
-;   R3 = age (8-bit)
-;   Stack parameters (BEFORE any PUSH):
-;     [SP+0]  = ward (16-bit)
-;     [SP+4]  = treatment_code (8-bit)
-;     [SP+8]  = room_rate (32-bit)
-;     [SP+12] = medicine_list pointer
-;     [SP+16] = medicine_count (8-bit)
-;     [SP+20] = stay_days (16-bit)
-; Returns: None
 ; ==============================================================================
 patient_record_initialization PROC
-        ; Load ALL stack parameters FIRST (before PUSH changes SP)
-        LDR     R4, [SP, #0]        ; ward
-        LDR     R5, [SP, #4]        ; treatment_code
-        LDR     R6, [SP, #8]        ; room_rate
-        LDR     R7, [SP, #12]       ; med_list pointer
-        LDR     R8, [SP, #16]       ; med_count
-        LDR     R9, [SP, #20]       ; stay_days
+        ; Save only what we absolutely need
+        PUSH    {R4-R7, LR}             ; 5 registers × 4 = 20 bytes
         
-        ; NOW save registers (R4-R11 must be preserved)
-        PUSH    {R4-R11, LR}
+        ; NOW load stack parameters (offset by 20 bytes)
+        ; Original [SP+0] is now [SP+20]
+        LDR     R4, [SP, #20]           ; ward
+        LDR     R5, [SP, #24]           ; treatment_code
+        LDR     R6, [SP, #28]           ; room_rate
+        LDR     R7, [SP, #32]           ; medicine_list
         
         ; ======================================================================
-        ; Write basic patient fields
+        ; Write basic patient fields (R0-R3 are still intact)
         ; ======================================================================
         STR     R1, [R0, #PATIENT_ID_OFF]           ; patient_id
         STR     R2, [R0, #NAME_PTR_OFF]             ; name_ptr
@@ -70,52 +55,57 @@ patient_record_initialization PROC
         STRH    R4, [R0, #WARD_NUMBER_OFF]          ; ward_number
         STR     R6, [R0, #ROOM_DAILY_RATE_OFF]      ; room_daily_rate
         STR     R7, [R0, #MEDICINE_LIST_PTR_OFF]    ; medicine_list_ptr
-        STRB    R8, [R0, #MEDICINE_COUNT_OFF]       ; medicine_count
-        STRH    R9, [R0, #STAY_DAYS_OFF]            ; stay_days
+        
+        ; Load remaining stack params
+        LDR     R4, [SP, #36]           ; medicine_count
+        STRB    R4, [R0, #MEDICINE_COUNT_OFF]
+        
+        LDR     R4, [SP, #40]           ; stay_days
+        STRH    R4, [R0, #STAY_DAYS_OFF]
         
         ; ======================================================================
         ; Initialize counters and flags to 0
         ; ======================================================================
-        MOV     R10, #0
-        STRB    R10, [R0, #ALERT_COUNT_OFF]
-        STRB    R10, [R0, #VITAL_BUFFER_INDEX_OFF]
-        STRB    R10, [R0, #ALERT_FLAG_OFF]
-        STRB    R10, [R0, #DOSAGE_DUE_FLAG_OFF]
+        MOV     R1, #0
+        STRB    R1, [R0, #ALERT_COUNT_OFF]
+        STRB    R1, [R0, #VITAL_BUFFER_INDEX_OFF]
+        STRB    R1, [R0, #ALERT_FLAG_OFF]
+        STRB    R1, [R0, #DOSAGE_DUE_FLAG_OFF]
         
         ; ======================================================================
         ; Zero billing structure (24 bytes = 6 words)
         ; ======================================================================
-        ADD     R11, R0, #BILLING_OFF
-        MOV     R12, #0
-        STR     R12, [R11, #0]      ; treatment_cost
-        STR     R12, [R11, #4]      ; room_cost
-        STR     R12, [R11, #8]      ; medicine_cost
-        STR     R12, [R11, #12]     ; lab_test_cost
-        STR     R12, [R11, #16]     ; total_bill
-        STR     R12, [R11, #20]     ; overflow_flag + padding
+        ADD     R2, R0, #BILLING_OFF
+        MOV     R3, #0
+        STR     R3, [R2, #0]
+        STR     R3, [R2, #4]
+        STR     R3, [R2, #8]
+        STR     R3, [R2, #12]
+        STR     R3, [R2, #16]
+        STR     R3, [R2, #20]
         
         ; ======================================================================
         ; Zero vital_buffer (40 bytes = 10 words)
         ; ======================================================================
-        ADD     R11, R0, #VITAL_BUFFER_OFF
-        MOV     R4, #10
-zero_vitals_loop
-        STR     R12, [R11], #4
-        SUBS    R4, R4, #1
-        BNE     zero_vitals_loop
+        ADD     R2, R0, #VITAL_BUFFER_OFF
+        MOV     R1, #10
+zero_vitals
+        STR     R3, [R2], #4            ; Store 0, increment
+        SUBS    R1, R1, #1
+        BNE     zero_vitals
         
         ; ======================================================================
         ; Zero alert_buffer (320 bytes = 80 words)
         ; ======================================================================
-        ADD     R11, R0, #ALERT_BUFFER_OFF
-        MOV     R4, #80
-zero_alert_loop
-        STR     R12, [R11], #4
-        SUBS    R4, R4, #1
-        BNE     zero_alert_loop
+        ADD     R2, R0, #ALERT_BUFFER_OFF
+        MOV     R1, #80
+zero_alerts
+        STR     R3, [R2], #4
+        SUBS    R1, R1, #1
+        BNE     zero_alerts
         
-        ; Restore registers and return
-        POP     {R4-R11, PC}
+        ; Return (LR is preserved in stack)
+        POP     {R4-R7, PC}             ; Restore R4-R7, return to caller
         ENDP
 
         ALIGN
