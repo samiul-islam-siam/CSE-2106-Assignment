@@ -7,10 +7,10 @@ All data reflects the **final sorted order** in RAM.
 # Final Sorted Order (By Criticality)
 
 | Position | Patient ID        | Name       | alert_count  | Status   | Total Bill           |
-| -------- | ----------------- | ---------- | ------------ | -------- | -------------------- |
+| -------- | ----------------- | ---------- | ------------ | -------- |----------------------|
 | **0**    | **1003 (0x03EB)** | Bob Wilson | **4 (0x04)** | CRITICAL | 47,500 (0x0000B98C)  |
-| **1**    | **1001 (0x03E9)** | John Doe   | **2 (0x02)** | MODERATE | 42,000 (0x0000A450)  |
-| **2**    | **1002 (0x03EA)** | Jane Smith | **0 (0x00)** | STABLE   | 115,000 (0x0001C198) |
+| **1**    | **1001 (0x03E9)** | John Doe   | **2 (0x02)** | MODERATE | 42,000 (0x0000A410)  |
+| **2**    | **1002 (0x03EA)** | Jane Smith | **0 (0x00)** | STABLE   | 115,000 (0x0001C138) |
 
 # Base Addresses (After Sorting)
 
@@ -106,12 +106,12 @@ All data reflects the **final sorted order** in RAM.
 ## **Billing**
 
 | Offset   | Field          | Decimal    | Hex            |
-| -------- | -------------- | ---------- | -------------- |
+| -------- | -------------- | ---------- |----------------|
 | `+0x184` | treatment_cost | **25,000** | **0x000061A8** |
 | `+0x188` | room_cost      | **14,000** | **0x000036B0** |
 | `+0x18C` | medicine_cost  | **0**      | **0x00000000** |
 | `+0x190` | lab_test_cost  | **3,000**  | **0x00000BB8** |
-| `+0x194` | total_bill     | **42,000** | **0x0000A450** |
+| `+0x194` | total_bill     | **42,000** | **0x0000A410** |
 | `+0x198` | overflow_flag  | **0**      | **0x00**       |
 
 # Patient 3 — Jane Smith (Least Critical)
@@ -153,12 +153,12 @@ All data reflects the **final sorted order** in RAM.
 ## **Billing**
 
 | Offset   | Field          | Decimal     | Hex            |
-| -------- | -------------- | ----------- | -------------- |
+| -------- | -------------- | ----------- |----------------|
 | `+0x184` | treatment_cost | **50,000**  | **0x0000C350** |
 | `+0x188` | room_cost      | **57,000**  | **0x0000DEA8** |
 | `+0x18C` | medicine_cost  | **0**       | **0x00000000** |
 | `+0x190` | lab_test_cost  | **8,000**   | **0x00001F40** |
-| `+0x194` | total_bill     | **115,000** | **0x0001C198** |
+| `+0x194` | total_bill     | **115,000** | **0x0001C138** |
 | `+0x198` | overflow_flag  | **0**       | **0x00**       |
 
 # Quick Memory Verification
