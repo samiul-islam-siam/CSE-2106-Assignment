@@ -1,5 +1,5 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1, 2, 3, 4, 5, 6 & 7)
+; SmartCare-32: Complete Integration (Modules 1-8)
 ; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
@@ -15,6 +15,7 @@
         IMPORT  compute_treatment_cost
         IMPORT  compute_room_cost
         IMPORT  medicine_billing_module
+        IMPORT  aggregate_total_bill
         IMPORT  patient_array
         IMPORT  patient1_name
         IMPORT  patient2_name
@@ -30,7 +31,7 @@
 PATIENT_SIZE            EQU     412
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 BILLING_OFF             EQU     0x184
-MEDICINE_COST_OFF       EQU     0x08
+TOTAL_BILL_OFF          EQU     0x10
 
 main    PROC
         MOVW    R11, #0x0001
@@ -77,6 +78,10 @@ main    PROC
         BL      medicine_billing_module
         MOVW    R11, #0x0005
         
+        LDR     R0, =patient_array
+        BL      aggregate_total_bill
+        MOVW    R11, #0x0006
+        
         ; ======================================================================
         ; Initialize Patient 2
         ; ======================================================================
@@ -102,25 +107,31 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x0006
-        
-        LDR     R0, =patient_array
-        MOVW    R10, #PATIENT_SIZE
-        ADD     R0, R0, R10
-        BL      compute_treatment_cost
         MOVW    R11, #0x0007
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
-        BL      compute_room_cost
+        BL      compute_treatment_cost
         MOVW    R11, #0x0008
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
-        BL      medicine_billing_module
+        BL      compute_room_cost
         MOVW    R11, #0x0009
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      medicine_billing_module
+        MOVW    R11, #0x000A
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        BL      aggregate_total_bill
+        MOVW    R11, #0x000B
         
         ; ======================================================================
         ; Initialize Patient 3
@@ -148,28 +159,35 @@ main    PROC
         BL      patient_record_initialization
         ADD     SP, SP, #24
         
-        MOVW    R11, #0x000A
-        
-        LDR     R0, =patient_array
-        MOVW    R10, #PATIENT_SIZE
-        LSL     R10, R10, #1
-        ADD     R0, R0, R10
-        BL      compute_treatment_cost
-        MOVW    R11, #0x000B
-        
-        LDR     R0, =patient_array
-        MOVW    R10, #PATIENT_SIZE
-        LSL     R10, R10, #1
-        ADD     R0, R0, R10
-        BL      compute_room_cost
         MOVW    R11, #0x000C
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
-        BL      medicine_billing_module
+        BL      compute_treatment_cost
         MOVW    R11, #0x000D
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      compute_room_cost
+        MOVW    R11, #0x000E
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      medicine_billing_module
+        MOVW    R11, #0x000F
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        BL      aggregate_total_bill
+        MOVW    R11, #0x0010
         
         ; ======================================================================
         ; Vitals for Patient 1
@@ -189,15 +207,15 @@ main    PROC
         
         LDR     R0, =patient_array
         BL      acquire_vital_signs
-        MOVW    R11, #0x000E
+        MOVW    R11, #0x0011
         
         LDR     R0, =patient_array
         BL      check_vital_thresholds
-        MOVW    R11, #0x000F
+        MOVW    R11, #0x0012
         
         LDR     R0, =patient_array
         BL      medicine_administration_scheduler
-        MOVW    R11, #0x0010
+        MOVW    R11, #0x0013
         
         ; ======================================================================
         ; Vitals for Patient 2
@@ -219,19 +237,19 @@ main    PROC
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      acquire_vital_signs
-        MOVW    R11, #0x0011
+        MOVW    R11, #0x0014
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      check_vital_thresholds
-        MOVW    R11, #0x0012
+        MOVW    R11, #0x0015
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
-        MOVW    R11, #0x0013
+        MOVW    R11, #0x0016
         
         ; ======================================================================
         ; Vitals for Patient 3
@@ -254,21 +272,21 @@ main    PROC
         LSL     R10, R10, #1
         ADD     R0, R0, R10
         BL      acquire_vital_signs
-        MOVW    R11, #0x0014
+        MOVW    R11, #0x0017
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
         BL      check_vital_thresholds
-        MOVW    R11, #0x0015
+        MOVW    R11, #0x0018
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
-        MOVW    R11, #0x0016
+        MOVW    R11, #0x0019
         
         MOVW    R0, #0xDEAD
         MOVT    R0, #0xBEEF
