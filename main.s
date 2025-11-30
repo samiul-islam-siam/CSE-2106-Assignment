@@ -26,6 +26,9 @@
         IMPORT  SENSOR_SBP
         IMPORT  SENSOR_DBP
         IMPORT  system_clock
+        IMPORT  medicine_list_p1
+        IMPORT  medicine_list_p2
+        IMPORT  medicine_list_p3
 
         EXPORT  main
 
@@ -43,19 +46,22 @@ main    PROC
         
         ; ======================================================================
         ; Initialize Patient 1
+        ; NOTE: push order kept so module1.s reads correct stack offsets.
+        ; Push sequence (first->last): stay_days, medicine_count, medicine_list_ptr,
+        ;                               room_rate, treatment_code, ward
         ; ======================================================================
         MOV     R0, #7
-        PUSH    {R0}
+        PUSH    {R0}                  ; stay_days = 7
         MOV     R0, #3
-        PUSH    {R0}
-        MOV     R0, #0
-        PUSH    {R0}
+        PUSH    {R0}                  ; medicine_count = 3
+        LDR     R0, =medicine_list_p1
+        PUSH    {R0}                  ; medicine_list_ptr = &medicine_list_p1
         MOVW    R0, #2000
-        PUSH    {R0}
+        PUSH    {R0}                  ; room_rate = 2000
         MOV     R0, #5
-        PUSH    {R0}
-        MOV     R0, #101
-        PUSH    {R0}
+        PUSH    {R0}                  ; treatment_code = 5
+        MOVW    R0, #101
+        PUSH    {R0}                  ; ward = 101
         
         LDR     R0, =patient_array
         MOVW    R1, #1001
@@ -83,20 +89,20 @@ main    PROC
         MOVW    R11, #0x0006
         
         ; ======================================================================
-        ; Initialize Patient 2
+        ; Initialize Patient 2 (kept original push order; use correct med list ptr)
         ; ======================================================================
         MOV     R0, #12
-        PUSH    {R0}
+        PUSH    {R0}                  ; stay_days = 12
         MOV     R0, #2
-        PUSH    {R0}
-        MOV     R0, #0
-        PUSH    {R0}
+        PUSH    {R0}                  ; medicine_count = 2
+        LDR     R0, =medicine_list_p2
+        PUSH    {R0}                  ; medicine_list_ptr = &medicine_list_p2
         MOVW    R0, #5000
-        PUSH    {R0}
+        PUSH    {R0}                  ; room_rate = 5000
         MOV     R0, #2
-        PUSH    {R0}
-        MOV     R0, #102
-        PUSH    {R0}
+        PUSH    {R0}                  ; treatment_code = 2
+        MOVW    R0, #102
+        PUSH    {R0}                  ; ward = 102
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
@@ -134,20 +140,20 @@ main    PROC
         MOVW    R11, #0x000B
         
         ; ======================================================================
-        ; Initialize Patient 3
+        ; Initialize Patient 3 (kept original push order; use correct med list ptr)
         ; ======================================================================
         MOV     R0, #5
-        PUSH    {R0}
+        PUSH    {R0}                  ; stay_days = 5
         MOV     R0, #1
-        PUSH    {R0}
-        MOV     R0, #0
-        PUSH    {R0}
+        PUSH    {R0}                  ; medicine_count = 1
+        LDR     R0, =medicine_list_p3
+        PUSH    {R0}                  ; medicine_list_ptr = &medicine_list_p3
         MOVW    R0, #3000
-        PUSH    {R0}
+        PUSH    {R0}                  ; room_rate = 3000
         MOV     R0, #6
-        PUSH    {R0}
+        PUSH    {R0}                  ; treatment_code = 6
         MOVW    R0, #201
-        PUSH    {R0}
+        PUSH    {R0}                  ; ward = 201
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
@@ -305,4 +311,5 @@ infinite_loop
         
         ENDP
         ALIGN
+
         END

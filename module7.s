@@ -3,11 +3,11 @@
 
 MED_ID_OFF             EQU     0x00
 DOSAGE_INTERVAL_OFF    EQU     0x01
-LAST_ADMIN_TIME_OFF    EQU     0x02
-UNIT_PRICE_OFF         EQU     0x06
-QUANTITY_OFF           EQU     0x0A
-MED_PADDING_OFF        EQU     0x0C
-MEDICINE_SIZE          EQU     0x10        ; 16 bytes
+LAST_ADMIN_TIME_OFF    EQU     0x04   ; 4-byte aligned
+UNIT_PRICE_OFF         EQU     0x08   ; 4-byte aligned
+QUANTITY_OFF           EQU     0x0C
+MED_PADDING_OFF        EQU     0x0E
+MEDICINE_SIZE          EQU     0x10   ; 16 bytes total
 
 MEDICINE_LIST_PTR_OFF   EQU     0x10
 MEDICINE_COUNT_OFF      EQU     0x14
@@ -18,62 +18,46 @@ MEDICINE_COST_OFF       EQU     0x08   ; (relative to billing start)
         EXPORT  medicine_billing_module
 
 ; void compute_medicine_cost(Patient *patient)
-; r0 = patient*
+; R0 = patient*
 medicine_billing_module
-        PUSH    {r4-r7, lr}
+        PUSH    {R4-R7, LR}
 
-        ; load medicine_count (uint8)
-        LDRB    r1, [r0, #MEDICINE_COUNT_OFF]
-        CMP     r1, #0
+        LDRB    R1, [R0, #MEDICINE_COUNT_OFF]
+        CMP     R1, #0
         BEQ     cmc_zero
 
-        ; load medicine_list pointer
-        LDR     r2, [r0, #MEDICINE_LIST_PTR_OFF]
+        LDR     R2, [R0, #MEDICINE_LIST_PTR_OFF]
+        LDRH    R3, [R0, #STAY_DAYS_OFF]
 
-        ; load stay_days (uint16)
-        LDRH    r3, [r0, #STAY_DAYS_OFF]
-
-        MOVS    r4, #0      ; r4 = total_medicine_cost (accumulator)
-        MOVS    r5, #0      ; r5 = index
+        MOVS    R4, #0      ; total cost
+        MOVS    R5, #0      ; index
 
 cmc_loop
-        ; med_ptr = r2 + index * MEDICINE_SIZE  (MEDICINE_SIZE == 16 -> shift left 4)
-        MOV     r6, r5
-        LSLS    r6, r6, #4
-        ADDS    r6, r6, r2      ; r6 = med_ptr
+        MOV     R6, R5
+        LSLS    R6, R6, #4       ; index * MEDICINE_SIZE
+        ADDS    R6, R6, R2       ; med_ptr
 
-        ; load unit_price (word) into r7
-        LDR     r7, [r6, #UNIT_PRICE_OFF]
+        LDR     R7, [R6, #UNIT_PRICE_OFF]   ; aligned now
+        LDRH    R6, [R6, #QUANTITY_OFF]
+        MUL     R7, R7, R6
+        MUL     R7, R7, R3
 
-        ; load quantity (halfword) into r6 (reuse med_ptr register)
-        LDRH    r6, [r6, #QUANTITY_OFF]
+        ADDS    R4, R4, R7
 
-        ; med_cost = unit_price * quantity
-        MUL     r7, r7, r6      ; r7 = price * qty
-
-        ; med_cost *= stay_days
-        MUL     r7, r7, r3      ; r7 = price * qty * days
-
-        ; accumulate total
-        ADDS    r4, r4, r7
-
-        ; index++
-        ADDS    r5, r5, #1
-        CMP     r5, r1
+        ADDS    R5, R5, #1
+        CMP     R5, R1
         BLT     cmc_loop
 
-        ; store total into patient->billing.medicine_cost
-        ADDS    r6, r0, #BILLING_OFF
-        STR     r4, [r6, #MEDICINE_COST_OFF]
+        ADDS    R6, R0, #BILLING_OFF
+        STR     R4, [R6, #MEDICINE_COST_OFF]
 
-        POP     {r4-r7, pc}
+        POP     {R4-R7, PC}
 
 cmc_zero
-        ; store 0 at billing.medicine_cost
-        ADDS    r6, r0, #BILLING_OFF
-        MOVS    r4, #0
-        STR     r4, [r6, #MEDICINE_COST_OFF]
-        POP     {r4-r7, pc}
+        ADDS    R6, R0, #BILLING_OFF
+        MOVS    R4, #0
+        STR     R4, [R6, #MEDICINE_COST_OFF]
+        POP     {R4-R7, PC}
 
         ALIGN
         END
