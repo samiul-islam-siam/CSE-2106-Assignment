@@ -6,7 +6,7 @@
 
         PRESERVE8
         THUMB
-        AREA    |. text|, CODE, READONLY
+        AREA    |.text|, CODE, READONLY
 
         IMPORT  patient_record_initialization
         IMPORT  acquire_vital_signs
@@ -17,7 +17,7 @@
         IMPORT  medicine_billing_module
         IMPORT  aggregate_total_bill
         IMPORT  sort_patients_by_criticality
-        IMPORT  patient_array
+        IMPORT  patient_array              ; IMPORT, not EXPORT
         IMPORT  patient1_name
         IMPORT  patient2_name
         IMPORT  patient3_name
@@ -30,24 +30,16 @@
         IMPORT  medicine_list_p2
         IMPORT  medicine_list_p3
         
-        ; MODULE 10: Import C functions for UART report generation
-        IMPORT  main                  ; main() from main.c (renamed to avoid conflict)
-        IMPORT  Generate_UART_Reports ; New function we'll create
+        ; MODULE 10: Import from module10.s
+        IMPORT  Generate_All_Patient_Reports
 
-        EXPORT  __main                ; Entry point for ARM startup
+        EXPORT  main                   ; Only export main
 
 PATIENT_SIZE            EQU     412
 PATIENT_ID_OFF          EQU     0x00
-PATIENT_AGE_OFF         EQU     0x04
-WARD_OFF                EQU     0x08
-HR_OFF                  EQU     0x0C
-SBP_OFF                 EQU     0x10
-DBP_OFF                 EQU     0x14
-O2_OFF                  EQU     0x18
 ALERT_COUNT_OFF         EQU     0x15
-TOTAL_BILL_OFF          EQU     0x190   ; Adjust based on your structure
 
-__main  PROC
+main    PROC
         MOVW    R11, #0x0001
         
         LDR     R0, =system_clock
@@ -311,13 +303,12 @@ __main  PROC
         MOVW    R11, #0x001A
         
         ; ======================================================================
-        ; MODULE 10: Generate UART Summary Reports for All Patients
-        ; This calls the C function that generates formatted output via ITM
+        ; MODULE 10: Generate UART Summary Reports
+        ; Calls module10.s which bridges to main.c
         ; ======================================================================
-        MOVW    R11, #0x001B          ; Module 10 marker
+        MOVW    R11, #0x001B          ; Module 10 start marker
         
-        ; Call the C function to generate reports
-        BL      Generate_UART_Reports
+        BL      Generate_All_Patient_Reports  ; Call module10.s function
         
         MOVW    R11, #0x001C          ; Module 10 completed
         
