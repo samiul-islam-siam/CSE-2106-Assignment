@@ -3,13 +3,13 @@
 ; File: data.s - Data Sections, Structures, and Constants
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
-
+	
         AREA    PatientData, DATA, READWRITE
         ALIGN   4
 
-; ==============================================================================
+; ================================================================================
 ; EXPORT DECLARATIONS
-; ==============================================================================
+; ================================================================================
         EXPORT  patient_array
         EXPORT  treatment_cost_table
         EXPORT  SENSOR_HR
@@ -21,10 +21,31 @@
         EXPORT  patient1_name
         EXPORT  patient2_name
         EXPORT  patient3_name
+		
+		EXPORT	medicine_list_p1
+		EXPORT	medicine_list_p2
+		EXPORT	medicine_list_p3
 
-; ==============================================================================
-; CONSTANTS
-; ==============================================================================
+; ================================================================================
+; STRUCTURE CONSTANTS
+; ================================================================================
+
+; Medicine structure Layout (byte offsets):
+; +0x00: medicine_id (1 bytes)
+; +0x01: dosage_interval_hours (1 bytes)
+; +0x04: last_administered_time (4 byte)
+; +0x08: unit_price (4 byte)
+; +0x0C: quantity (2 bytes)
+; Total: 0x10 = 16 bytes per medicine
+
+MED_ID_OFF             EQU 0x00
+DOSAGE_INTERVAL_OFF    EQU 0x01
+LAST_ADMIN_TIME_OFF    EQU 0x04   ; 4-byte aligned
+UNIT_PRICE_OFF         EQU 0x08   ; 4-byte aligned
+QUANTITY_OFF           EQU 0x0C
+MED_PADDING_OFF        EQU 0x0E
+MEDICINE_SIZE          EQU 0x10   ; 16 bytes total
+
 ; Patient Structure Layout (byte offsets):
 ; +0x00: patient_id (4 bytes)
 ; +0x04: name_ptr (4 bytes)
@@ -45,14 +66,20 @@
 ; +0x184: billing structure (24 bytes)
 ; Total: 0x19C = 412 bytes per patient
 
-PATIENT_SIZE    EQU     412             ; Size of Patient structure in bytes
-VITAL_SIZE      EQU     4               ; Size of VitalSign structure (4 bytes)
-VITAL_COUNT     EQU     10              ; Number of vital sign entries in buffer
-ALERT_SIZE      EQU     16              ; Size of AlertRecord structure
-ALERT_COUNT     EQU     20              ; Number of alert records in buffer
-BILLING_SIZE    EQU     24              ; Size of Billing structure
+; --- Vital sign ---
+VITAL_SIZE      EQU     4		; Size of VitalSign structure (4 bytes)
+VITAL_COUNT     EQU     10		; Number of vital sign entries in buffer
 
-; Patient structure offsets
+; --- Alert record ---
+ALERT_SIZE      EQU     16		; Size of AlertRecord structure
+ALERT_COUNT     EQU     20		; Number of alert records in buffer
+
+; --- Billing ---
+BILLING_SIZE    EQU     24		; Size of Billing structure
+
+; --- Patient structure offsets ---
+PATIENT_SIZE            EQU     412
+
 PATIENT_ID_OFF          EQU     0x00
 NAME_PTR_OFF            EQU     0x04
 AGE_OFF                 EQU     0x08
@@ -70,7 +97,7 @@ DOSAGE_DUE_FLAG_OFF     EQU     0x42
 ALERT_BUFFER_OFF        EQU     0x44
 BILLING_OFF             EQU     0x184
 
-; Billing structure offsets (relative to billing start)
+; Billing structure offsets (relative to billing start):
 TREATMENT_COST_OFF      EQU     0x00
 ROOM_COST_OFF           EQU     0x04
 MEDICINE_COST_OFF       EQU     0x08
@@ -78,35 +105,35 @@ LAB_TEST_COST_OFF       EQU     0x0C
 TOTAL_BILL_OFF          EQU     0x10
 OVERFLOW_FLAG_OFF       EQU     0x14
 
+
 ; ==============================================================================
 ; SIMULATED SENSOR MEMORY ADDRESSES
-; These represent hardware sensor registers in a real system
 ; ==============================================================================
         ALIGN   4
-SENSOR_HR       SPACE   1               ; Heart Rate sensor (0-255 bpm)
+SENSOR_HR       SPACE   1			; Heart Rate sensor (0-255 bpm)
         ALIGN   4
-SENSOR_O2       SPACE   1               ; Oxygen saturation (0-100%)
+SENSOR_O2       SPACE   1			; Oxygen saturation (0-100%)
         ALIGN   4
-SENSOR_SBP      SPACE   1               ; Systolic Blood Pressure
+SENSOR_SBP      SPACE   1			; Systolic Blood Pressure
         ALIGN   4
-SENSOR_DBP      SPACE   1               ; Diastolic Blood Pressure
+SENSOR_DBP      SPACE   1			; Diastolic Blood Pressure
         ALIGN   4
+
 
 ; ==============================================================================
 ; SYSTEM CLOCK COUNTER
 ; ==============================================================================
-        ALIGN   4
-system_clock    DCD     0               ; Global system clock counter
+system_clock    DCD     0			; Global system clock counter
+
 
 ; ==============================================================================
 ; PATIENT COUNT
 ; ==============================================================================
-        ALIGN   4
-patient_count   DCD     3               ; Number of patients in system
+patient_count   DCD     3			; Number of patients in system
+
 
 ; ==============================================================================
-; TREATMENT COST LOOKUP TABLE
-; Maps treatment codes (0-15) to cost values
+; TREATMENT COST TABLE
 ; ==============================================================================
         ALIGN   4
 treatment_cost_table
@@ -127,16 +154,97 @@ treatment_cost_table
         DCD     19000                   ; Code 14: Oncology
         DCD     21000                   ; Code 15: Radiology
 
+
 ; ==============================================================================
 ; PATIENT NAME STRINGS
 ; ==============================================================================
         ALIGN   4
-patient1_name   DCB     "John Doe", 0
+patient1_name   DCB     "John Doe",0
         ALIGN   4
-patient2_name   DCB     "Jane Smith", 0
+patient2_name   DCB     "Jane Smith",0
         ALIGN   4
-patient3_name   DCB     "Bob Wilson", 0
+patient3_name   DCB     "Bob Wilson",0
         ALIGN   4
+
+
+; ==============================================================================
+; MEDICINE LISTS: every entry = 16 bytes with padding
+; ==============================================================================
+
+; -------------------------------
+; Patient 1 Medicines (3 items = 48 bytes)
+; -------------------------------
+        ALIGN 4
+medicine_list_p1
+
+; Medicine 1
+		DCB 1                  	; +0x00: medicine_id
+        DCB 6                  	; +0x01: dosage_interval
+        DCB 0,0                	; padding for alignment
+        DCD 0                  	; +0x04: last_administered_time
+		DCD 50                 	; +0x08: unit_price
+		DCW 10                 	; +0x0C: quantity
+        DCB 0,0                	; +0x0E: padding
+
+; Medicine 2
+        DCB 2				   	; +0x00: medicine_id
+        DCB 8					; +0x01: dosage_interval
+        DCB 0,0					; padding for alignment
+        DCD 0					; +0x04: last_administered_time
+        DCD 120					; +0x08: unit_price
+        DCW 5					; +0x0C: quantity
+        DCB 0,0					; +0x0E: padding
+
+; Medicine 3
+        DCB 3									; +0x00: medicine_id
+        DCB 12                                  ; +0x01: dosage_interval                           
+        DCB 0,0                                 ; padding for alignment
+        DCD 0                                   ; +0x04: last_administered_time
+        DCD 200                                 ; +0x08: unit_price
+        DCW 3                                   ; +0x0C: quantity
+        DCB 0,0                                 ; +0x0E: padding
+
+
+
+; -------------------------------
+; Patient 2 Medicines (2 items = 32 bytes)
+; -------------------------------
+        ALIGN 4
+medicine_list_p2
+
+; Medicine 1
+        DCB 4									; +0x00: medicine_id
+        DCB 4                                   ; +0x01: dosage_interval
+        DCB 0,0                                 ; padding for alignment
+        DCD 0                                   ; +0x04: last_administered_time
+        DCD 80                                  ; +0x08: unit_price
+        DCW 8                                   ; +0x0C: quantity
+        DCB 0,0                                 ; +0x0E: padding
+
+; Medicine 2
+        DCB 5									; +0x00: medicine_id
+        DCB 6                                   ; +0x01: dosage_interval
+        DCB 0,0                                 ; padding for alignment
+        DCD 0                                   ; +0x04: last_administered_time
+        DCD 150                                 ; +0x08: unit_price
+        DCW 4                                   ; +0x0C: quantity
+        DCB 0,0                                 ; +0x0E: padding
+
+
+; -------------------------------
+; Patient 3 Medicines (1 item = 16 bytes)
+; -------------------------------
+        ALIGN 4
+medicine_list_p3
+
+        DCB 6									; +0x00: medicine_id
+        DCB 24                                  ; +0x01: dosage_interval
+        DCB 0,0                                 ; padding for alignment
+        DCD 0                                   ; +0x04: last_administered_time
+        DCD 300                                 ; +0x08: unit_price
+        DCW 2                                   ; +0x0C: quantity
+        DCB 0,0                                 ; +0x0E: padding
+
 
 ; ==============================================================================
 ; PATIENT ARRAY - 3 Patients
@@ -144,6 +252,7 @@ patient3_name   DCB     "Bob Wilson", 0
 ; ==============================================================================
         ALIGN   4
 patient_array
+
 ; ------------------------------------------------------------------------------
 ; Patient 1: John Doe
 ; Treatment code: 5 (ICU admission)
@@ -156,12 +265,12 @@ patient1
         DCB     5                       ; +0x09: treatment_code (ICU admission)
         DCW     101                     ; +0x0A: ward_number
         DCD     2000                    ; +0x0C: room_daily_rate
-        DCD     0                       ; +0x10: medicine_list_ptr (NULL for now)
+        DCD     medicine_list_p1        ; +0x10: medicine_list_ptr
         DCB     3                       ; +0x14: medicine_count
         DCB     2                       ; +0x15: alert_count (HIGH - critical)
         DCW     7                       ; +0x16: stay_days
         ; +0x18: vital_buffer[10] - 40 bytes (10 x 4 bytes)
-        SPACE   40
+        SPACE   40                      
         DCB     0                       ; +0x40: vital_buffer_index
         DCB     0                       ; +0x41: alert_flag
         DCB     0                       ; +0x42: dosage_due_flag
@@ -176,6 +285,7 @@ patient1
         DCD     0                       ; total_bill
         DCD     0                       ; overflow_flag + padding
 
+
 ; ------------------------------------------------------------------------------
 ; Patient 2: Jane Smith
 ; Treatment code: 2 (Major surgery)
@@ -188,7 +298,7 @@ patient2
         DCB     2                       ; +0x09: treatment_code (Major surgery)
         DCW     102                     ; +0x0A: ward_number
         DCD     5000                    ; +0x0C: room_daily_rate
-        DCD     0                       ; +0x10: medicine_list_ptr
+        DCD     medicine_list_p2        ; +0x10: medicine_list_ptr
         DCB     2                       ; +0x14: medicine_count
         DCB     0                       ; +0x15: alert_count (LOW - stable)
         DCW     12                      ; +0x16: stay_days
@@ -208,6 +318,7 @@ patient2
         DCD     0                       ; total_bill
         DCD     0                       ; overflow_flag + padding
 
+
 ; ------------------------------------------------------------------------------
 ; Patient 3: Bob Wilson
 ; Treatment code: 6 (Emergency care)
@@ -220,7 +331,7 @@ patient3
         DCB     6                       ; +0x09: treatment_code (Emergency care)
         DCW     201                     ; +0x0A: ward_number
         DCD     3000                    ; +0x0C: room_daily_rate
-        DCD     0                       ; +0x10: medicine_list_ptr
+        DCD     medicine_list_p3        ; +0x10: medicine_list_ptr
         DCB     1                       ; +0x14: medicine_count
         DCB     5                       ; +0x15: alert_count (HIGHEST - most critical)
         DCW     5                       ; +0x16: stay_days
