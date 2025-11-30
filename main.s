@@ -1,12 +1,12 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1-9)
+; SmartCare-32: Complete Integration (Modules 1-10)
 ; File: main.s
 ; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
-        AREA    |. text|, CODE, READONLY
+        AREA    |.text|, CODE, READONLY
 
         IMPORT  patient_record_initialization
         IMPORT  acquire_vital_signs
@@ -17,7 +17,7 @@
         IMPORT  medicine_billing_module
         IMPORT  aggregate_total_bill
         IMPORT  sort_patients_by_criticality
-        IMPORT  patient_array
+        IMPORT  patient_array              ; IMPORT, not EXPORT
         IMPORT  patient1_name
         IMPORT  patient2_name
         IMPORT  patient3_name
@@ -29,8 +29,11 @@
         IMPORT  medicine_list_p1
         IMPORT  medicine_list_p2
         IMPORT  medicine_list_p3
+        
+        ; MODULE 10: Import from module10.s
+        IMPORT  Generate_All_Patient_Reports
 
-        EXPORT  main
+        EXPORT  main                   ; Only export main
 
 PATIENT_SIZE            EQU     412
 PATIENT_ID_OFF          EQU     0x00
@@ -46,16 +49,13 @@ main    PROC
         
         ; ======================================================================
         ; Initialize Patient 1
-        ; NOTE: push order kept so module1.s reads correct stack offsets.
-        ; Push sequence (first->last): stay_days, medicine_count, medicine_list_ptr,
-        ;                               room_rate, treatment_code, ward
         ; ======================================================================
         MOV     R0, #7
         PUSH    {R0}                  ; stay_days = 7
         MOV     R0, #3
         PUSH    {R0}                  ; medicine_count = 3
         LDR     R0, =medicine_list_p1
-        PUSH    {R0}                  ; medicine_list_ptr = &medicine_list_p1
+        PUSH    {R0}                  ; medicine_list_ptr
         MOVW    R0, #2000
         PUSH    {R0}                  ; room_rate = 2000
         MOV     R0, #5
@@ -89,20 +89,20 @@ main    PROC
         MOVW    R11, #0x0006
         
         ; ======================================================================
-        ; Initialize Patient 2 (kept original push order; use correct med list ptr)
+        ; Initialize Patient 2
         ; ======================================================================
         MOV     R0, #12
-        PUSH    {R0}                  ; stay_days = 12
+        PUSH    {R0}
         MOV     R0, #2
-        PUSH    {R0}                  ; medicine_count = 2
+        PUSH    {R0}
         LDR     R0, =medicine_list_p2
-        PUSH    {R0}                  ; medicine_list_ptr = &medicine_list_p2
+        PUSH    {R0}
         MOVW    R0, #5000
-        PUSH    {R0}                  ; room_rate = 5000
+        PUSH    {R0}
         MOV     R0, #2
-        PUSH    {R0}                  ; treatment_code = 2
+        PUSH    {R0}
         MOVW    R0, #102
-        PUSH    {R0}                  ; ward = 102
+        PUSH    {R0}
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
@@ -140,20 +140,20 @@ main    PROC
         MOVW    R11, #0x000B
         
         ; ======================================================================
-        ; Initialize Patient 3 (kept original push order; use correct med list ptr)
+        ; Initialize Patient 3
         ; ======================================================================
         MOV     R0, #5
-        PUSH    {R0}                  ; stay_days = 5
+        PUSH    {R0}
         MOV     R0, #1
-        PUSH    {R0}                  ; medicine_count = 1
+        PUSH    {R0}
         LDR     R0, =medicine_list_p3
-        PUSH    {R0}                  ; medicine_list_ptr = &medicine_list_p3
+        PUSH    {R0}
         MOVW    R0, #3000
-        PUSH    {R0}                  ; room_rate = 3000
+        PUSH    {R0}
         MOV     R0, #6
-        PUSH    {R0}                  ; treatment_code = 6
+        PUSH    {R0}
         MOVW    R0, #201
-        PUSH    {R0}                  ; ward = 201
+        PUSH    {R0}
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
@@ -295,13 +295,24 @@ main    PROC
         MOVW    R11, #0x0019
         
         ; ======================================================================
-        ; MODULE 9: Sort patients by criticality (alert_count descending)
+        ; MODULE 9: Sort patients by criticality
         ; ======================================================================
         LDR     R0, =patient_array
         MOV     R1, #3
         BL      sort_patients_by_criticality
         MOVW    R11, #0x001A
         
+        ; ======================================================================
+        ; MODULE 10: Generate UART Summary Reports
+        ; Calls module10.s which bridges to main.c
+        ; ======================================================================
+        MOVW    R11, #0x001B          ; Module 10 start marker
+        
+        BL      Generate_All_Patient_Reports  ; Call module10.s function
+        
+        MOVW    R11, #0x001C          ; Module 10 completed
+        
+        ; Success indicator
         MOVW    R0, #0xDEAD
         MOVT    R0, #0xBEEF
         
