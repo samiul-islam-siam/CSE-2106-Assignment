@@ -29,7 +29,7 @@ All data reflects the **final sorted order** in RAM.
 | Offset  | Field             | Decimal              | Hex            |
 |---------|-------------------|----------------------|----------------|
 | `+0x00` | patient_id        | **1003**             | **0x03EB**     |
-| `+0x04` | name_ptr          | → `"Bob Wilson"`     | (pointer)      |
+| `+0x04` | name_ptr          | → `"Bob Wilson"`     | **0x20000074** |
 | `+0x08` | age               | **67**               | **0x43**       |
 | `+0x09` | treatment_code    | **6**                | **0x06**       |
 | `+0x0A` | ward_number       | **201**              | **0x00C9**     |
@@ -76,7 +76,7 @@ All data reflects the **final sorted order** in RAM.
 | Offset  | Field             | Decimal              | Hex            |
 |---------|-------------------|----------------------|----------------|
 | `+0x00` | patient_id        | **1001**             | **0x03E9**     |
-| `+0x04` | name_ptr          | → `"John Doe"`       | (pointer)      |
+| `+0x04` | name_ptr          | → `"John Doe"`       | **0x2000005C** |
 | `+0x08` | age               | **45**               | **0x2D**       |
 | `+0x09` | treatment_code    | **5**                | **0x05**       |
 | `+0x0A` | ward_number       | **101**              | **0x0065**     |
@@ -123,7 +123,7 @@ All data reflects the **final sorted order** in RAM.
 | Offset  | Field             | Decimal              | Hex            |
 |---------|-------------------|----------------------|----------------|
 | `+0x00` | patient_id        | **1002**             | **0x03EA**     |
-| `+0x04` | name_ptr          | → `"Jane Smith"`     | (pointer)      |
+| `+0x04` | name_ptr          | → `"Jane Smith"`     | **0x20000068** |
 | `+0x08` | age               | **32**               | **0x20**       |
 | `+0x09` | treatment_code    | **2**                | **0x02**       |
 | `+0x0A` | ward_number       | **102**              | **0x0066**     |
