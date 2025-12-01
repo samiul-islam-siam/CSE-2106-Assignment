@@ -176,7 +176,86 @@ void PrintPatientReport_C(PatientData *data) {
     ITM_SendString("==================================================\r\n");
 
 }
+// Import error tracking from assembly
+extern uint32_t error_flag;
+extern uint8_t error_log_buffer[];
+extern uint32_t error_count;
 
+// Error type constants
+#define ERROR_SENSOR_MALFUNCTION    0x01
+#define ERROR_INVALID_DOSAGE        0x02
+#define ERROR_MEMORY_OVERFLOW       0x03
+
+void Print_Error_Log(void) {
+    uint32_t count = error_count;
+    
+    if (count == 0) {
+        ITM_SendString("\n[NO ERRORS DETECTED]\n");
+        return;
+    }
+    
+    ITM_SendString("\n\n");
+    ITM_SendString("========================================\n");
+    ITM_SendString("     SYSTEM ERROR LOG (Module 11)      \n");
+    ITM_SendString("========================================\n");
+    ITM_SendString("Total Errors: ");
+    ITM_SendInt(count);
+    ITM_SendString("\n\n");
+    
+    for (uint32_t i = 0; i < count && i < 50; i++) {
+        uint8_t *record = error_log_buffer + (i * 16);
+        
+        uint8_t error_type = record[0];
+        uint8_t patient_idx = record[1];
+        uint8_t error_code = record[2];
+        uint32_t timestamp = *((uint32_t*)(record + 4));
+        uint32_t error_value = *((uint32_t*)(record + 8));
+        
+        ITM_SendString("Error #");
+        ITM_SendInt(i + 1);
+        ITM_SendString("\n");
+        
+        ITM_SendString("  Type: ");
+        if (error_type == ERROR_SENSOR_MALFUNCTION) {
+            ITM_SendString("SENSOR MALFUNCTION\n");
+            ITM_SendString("  Sensor: ");
+            if (error_code == 1) ITM_SendString("Heart Rate");
+            else if (error_code == 2) ITM_SendString("Oxygen");
+            else if (error_code == 3) ITM_SendString("Blood Pressure");
+            ITM_SendString("\n");
+            ITM_SendString("  Stuck Value: ");
+            ITM_SendInt(error_value);
+        } else if (error_type == ERROR_INVALID_DOSAGE) {
+            ITM_SendString("INVALID DOSAGE\n");
+            ITM_SendString("  Issue: ");
+            if (error_code == 1) ITM_SendString("Zero Unit Price");
+            else if (error_code == 2) ITM_SendString("Zero Quantity");
+            ITM_SendString("\n");
+            ITM_SendString("  Medicine Index: ");
+            ITM_SendInt(error_value);
+        } else if (error_type == ERROR_MEMORY_OVERFLOW) {
+            ITM_SendString("MEMORY OVERFLOW\n");
+            ITM_SendString("  Code: ");
+            if (error_code == 1) ITM_SendString("Address Boundary");
+            else if (error_code == 2) ITM_SendString("Billing Overflow");
+            ITM_SendString("\n");
+            ITM_SendString("  Value: 0x");
+            ITM_SendInt(error_value);
+        }
+        ITM_SendString("\n");
+        
+        ITM_SendString("  Patient: ");
+        ITM_SendInt(patient_idx);
+        ITM_SendString("\n");
+        
+        ITM_SendString("  Timestamp: ");
+        ITM_SendInt(timestamp);
+        ITM_SendString(" sec\n");
+        ITM_SendString("----------------------------------------\n");
+    }
+    
+    ITM_SendString("========================================\n\n");
+}
 // ============================================================================
 // Public report generator function to be called from assembly/startup
 // Exported symbol: Generate_UART_Reports
@@ -188,6 +267,9 @@ void Generate_UART_Reports(void) {
 
     ITM_TCR = 0x0001000D;  // Enable ITM
     ITM_TER = 0x00000001;  // Enable stimulus port 0
+	
+		// Print error log FIRST
+    Print_Error_Log();
 
     for (int i = 0; i < 3; i++) {
         uint8_t *patient_ptr = patient_array + (i * PATIENT_SIZE);
