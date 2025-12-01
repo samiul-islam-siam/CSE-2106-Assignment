@@ -20,6 +20,7 @@
 #define PATIENT_AGE_OFF     0x08
 #define WARD_OFF            0x0A
 #define ALERT_COUNT_OFF     0x15
+#define VITAL_BUFFER_OFF    0x18
 #define TOTAL_BILL_OFF      0x194    // Adjust based on your actual structure
 
 // Import patient array and sensors from assembly modules
@@ -99,10 +100,10 @@ void ExtractPatientData(uint8_t *patient_ptr, PatientData *data) {
     data->id = *((uint32_t *)(patient_ptr + PATIENT_ID_OFF));
     data->age = *(uint8_t *)(patient_ptr + PATIENT_AGE_OFF);
     data->ward = (uint16_t)(patient_ptr[WARD_OFF]) | ((uint16_t)patient_ptr[WARD_OFF + 1] << 8);
-    data->hr  = SENSOR_HR;
-    data->sbp = SENSOR_SBP;
-    data->dbp = SENSOR_DBP;
-    data->o2  = SENSOR_O2;
+    data->hr  = *(uint8_t *)(patient_ptr + VITAL_BUFFER_OFF + 0);
+    data->sbp = *(uint8_t *)(patient_ptr + VITAL_BUFFER_OFF + 1);
+    data->dbp = *(uint8_t *)(patient_ptr + VITAL_BUFFER_OFF + 2);
+    data->o2  = *(uint8_t *)(patient_ptr + VITAL_BUFFER_OFF + 3);
     data->alert_count = *(uint8_t *)(patient_ptr + ALERT_COUNT_OFF);
     data->total_bill = *((uint32_t *)(patient_ptr + TOTAL_BILL_OFF));
 }
