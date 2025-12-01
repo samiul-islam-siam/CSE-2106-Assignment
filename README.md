@@ -81,7 +81,7 @@ All data reflects the **final sorted order** in RAM.
 | `+0x09` | treatment_code    | **5**                | **0x05**       |
 | `+0x0A` | ward_number       | **101**              | **0x0065**     |
 | `+0x0C` | room_daily_rate   | **2000**             | **0x000007D0** |
-| `+0x10` | medicine_list_ptr | → `"medicine_ptr_3"` | **0x200000B0** |
+| `+0x10` | medicine_list_ptr | → `"medicine_ptr_1"` | **0x200000B0** |
 | `+0x14` | medicine_count    | **3**                | **0x03**       |
 | `+0x15` | alert_count       | **2**                | **0x02**       |
 | `+0x16` | stay_days         | **7**                | **0x0007**     |
@@ -128,7 +128,7 @@ All data reflects the **final sorted order** in RAM.
 | `+0x09` | treatment_code    | **2**                | **0x02**       |
 | `+0x0A` | ward_number       | **102**              | **0x0066**     |
 | `+0x0C` | room_daily_rate   | **5000**             | **0x00001388** |
-| `+0x10` | medicine_list_ptr | → `"medicine_ptr_3"` | **0x200000D0** |
+| `+0x10` | medicine_list_ptr | → `"medicine_ptr_2"` | **0x200000D0** |
 | `+0x14` | medicine_count    | **2**                | **0x02**       |
 | `+0x15` | alert_count       | **0**                | **0x00**       |
 | `+0x16` | stay_days         | **12**               | **0x000C**     |
