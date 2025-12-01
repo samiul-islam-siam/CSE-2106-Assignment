@@ -118,7 +118,7 @@ check_hr_loop
         
 hr_malfunction
         ; Log HR sensor malfunction
-        MOV     R0, ERROR_SENSOR_MALFUNCTION
+        MOV     R0, #ERROR_SENSOR_MALFUNCTION
         MOV     R1, R10                 ; patient index
         MOV     R2, #1                  ; error_code: 1 = HR sensor
         MOV     R3, R4                  ; error_value = HR reading
@@ -143,7 +143,7 @@ check_o2_loop
         B       check_o2_loop
         
 o2_malfunction
-        MOV     R0, ERROR_SENSOR_MALFUNCTION
+        MOV     R0, #ERROR_SENSOR_MALFUNCTION
         MOV     R1, R10
         MOV     R2, #2                  ; error_code: 2 = O2 sensor
         MOV     R3, R5
@@ -168,7 +168,7 @@ check_sbp_loop
         B       check_sbp_loop
         
 sbp_malfunction
-        MOV     R0, ERROR_SENSOR_MALFUNCTION
+        MOV     R0, #ERROR_SENSOR_MALFUNCTION
         MOV     R1, R10
         MOV     R2, #3                  ; error_code: 3 = SBP sensor
         MOV     R3, R6
@@ -234,7 +234,7 @@ cid_loop
         
 cid_invalid_price
         ; Log invalid dosage error (zero price)
-        MOV     R0, ERROR_INVALID_DOSAGE
+        MOV     R0, #ERROR_INVALID_DOSAGE
         MOV     R1, R9                  ; patient index
         MOV     R2, #1                  ; error_code: 1 = zero price
         MOV     R3, R6                  ; error_value = medicine index
@@ -244,7 +244,7 @@ cid_invalid_price
         
 cid_invalid_quantity
         ; Log invalid dosage error (zero quantity)
-        MOV     R0, ERROR_INVALID_DOSAGE
+        MOV     R0, #ERROR_INVALID_DOSAGE
         MOV     R1, R9
         MOV     R2, #2                  ; error_code: 2 = zero quantity
         MOV     R3, R6                  ; medicine index
@@ -294,7 +294,7 @@ check_memory_overflow PROC
         
 cmo_overflow
         ; Log memory overflow error
-        MOV     R0, ERROR_MEMORY_OVERFLOW
+        MOV     R0, #ERROR_MEMORY_OVERFLOW
         MOV     R1, R5                  ; patient index
         MOV     R2, #1                  ; error_code: 1 = address overflow
         MOV     R3, R4                  ; error_value = bad address
@@ -303,7 +303,7 @@ cmo_overflow
         B       cmo_done
         
 cmo_billing_overflow
-        MOV     R0, ERROR_MEMORY_OVERFLOW
+        MOV     R0, #ERROR_MEMORY_OVERFLOW
         MOV     R1, R5
         MOV     R2, #2                  ; error_code: 2 = billing overflow
         MOV     R3, R1                  ; error_value = total_bill
