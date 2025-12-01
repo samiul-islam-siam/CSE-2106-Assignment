@@ -199,10 +199,12 @@ main    PROC
         ADD     R0, R0, R10
         BL      aggregate_total_bill
         MOVW    R11, #0x0010
+                ; ======================================================================
+        ; Vitals for Patient 1 (Acquire 10 times to build sensor history)
+        ; ======================================================================
+        MOVS    R12, #0                 ; Loop counter for 10 readings
         
-        ; ======================================================================
-        ; Vitals for Patient 1
-        ; ======================================================================
+vitals_loop_p1
         LDR     R0, =SENSOR_HR
         MOV     R1, #125
         STRB    R1, [R0]
@@ -218,13 +220,23 @@ main    PROC
         
         LDR     R0, =patient_array
         BL      acquire_vital_signs
-        MOVW    R11, #0x0011
-		
-		; MODULE 11a: Check sensor malfunction (Patient 0)
+        
+        ; MODULE 11a: Check sensor malfunction after each reading
         MOV     R0, #0                  ; patient index 0
         BL      check_sensor_malfunction
-        ;MOVW    R11, #0x0020   
         
+        ; Simulate time passing
+        LDR     R0, =system_clock
+        LDR     R1, [R0]
+        ADD     R1, R1, #300            ; Add 5 minutes
+        STR     R1, [R0]
+        
+        ADD     R12, R12, #1
+        CMP     R12, #10
+        BLT     vitals_loop_p1
+        
+        MOVW    R11, #0x0011
+ 
         LDR     R0, =patient_array
         BL      check_vital_thresholds
         MOVW    R11, #0x0012
