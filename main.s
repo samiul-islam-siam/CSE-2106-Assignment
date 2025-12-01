@@ -29,6 +29,9 @@
         IMPORT  medicine_list_p1
         IMPORT  medicine_list_p2
         IMPORT  medicine_list_p3
+		IMPORT  check_sensor_malfunction
+        IMPORT  check_invalid_dosage
+        IMPORT  check_memory_overflow
         
         ; MODULE 10: Import from module10.s
         IMPORT  Generate_All_Patient_Reports
@@ -87,6 +90,8 @@ main    PROC
         LDR     R0, =patient_array
         BL      aggregate_total_bill
         MOVW    R11, #0x0006
+		
+	
         
         ; ======================================================================
         ; Initialize Patient 2
@@ -214,6 +219,11 @@ main    PROC
         LDR     R0, =patient_array
         BL      acquire_vital_signs
         MOVW    R11, #0x0011
+		
+		; MODULE 11a: Check sensor malfunction (Patient 0)
+        MOV     R0, #0                  ; patient index 0
+        BL      check_sensor_malfunction
+        ;MOVW    R11, #0x0020   
         
         LDR     R0, =patient_array
         BL      check_vital_thresholds
@@ -222,6 +232,13 @@ main    PROC
         LDR     R0, =patient_array
         BL      medicine_administration_scheduler
         MOVW    R11, #0x0013
+		
+		
+		 ; MODULE 11b: Check invalid dosage (Patient 0)
+        LDR     R0, =patient_array
+        MOV     R1, #0                  ; patient index
+        BL      check_invalid_dosage
+        MOVW    R11, #0x0020
         
         ; ======================================================================
         ; Vitals for Patient 2
@@ -244,6 +261,12 @@ main    PROC
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         MOVW    R11, #0x0014
+		
+		; MODULE 11a: Check sensor malfunction (Patient 0)
+        MOV     R0, #1                  ; patient index 0
+        BL      check_sensor_malfunction
+        ;MOVW    R11, #0x0020   
+        
         
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
@@ -256,6 +279,14 @@ main    PROC
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
         MOVW    R11, #0x0016
+		
+		; MODULE 11b: Check dosage Patient 2
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        MOV     R1, #1
+        BL      check_invalid_dosage
+        MOVW    R11, #0x0021
         
         ; ======================================================================
         ; Vitals for Patient 3
@@ -280,6 +311,11 @@ main    PROC
         BL      acquire_vital_signs
         MOVW    R11, #0x0017
         
+		; MODULE 11a: Check sensor for Patient 3
+        MOV     R0, #2
+        BL      check_sensor_malfunction
+        
+		
         LDR     R0, =patient_array
         MOVW    R10, #PATIENT_SIZE
         LSL     R10, R10, #1
@@ -294,6 +330,36 @@ main    PROC
         BL      medicine_administration_scheduler
         MOVW    R11, #0x0019
         
+		; MODULE 11b: Check dosage Patient 3
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        MOV     R1, #2
+        BL      check_invalid_dosage
+        MOVW    R11, #0x0022
+		
+		; ======================================================================
+        ; MODULE 11c: Check memory overflow for ALL patients
+        ; ======================================================================
+        LDR     R0, =patient_array
+        MOV     R1, #0
+        BL      check_memory_overflow
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        ADD     R0, R0, R10
+        MOV     R1, #1
+        BL      check_memory_overflow
+        
+        LDR     R0, =patient_array
+        MOVW    R10, #PATIENT_SIZE
+        LSL     R10, R10, #1
+        ADD     R0, R0, R10
+        MOV     R1, #2
+        BL      check_memory_overflow
+        MOVW    R11, #0x0023
+		
         ; ======================================================================
         ; MODULE 9: Sort patients by criticality
         ; ======================================================================
