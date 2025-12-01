@@ -36,7 +36,7 @@ All data reflects the **final sorted order** in RAM.
 | `+0x0C` | room_daily_rate   | **3000**             | **0x00000BB8** |
 | `+0x10` | medicine_list_ptr | → `"medicine_ptr_3"` | **0x20000080** |
 | `+0x14` | medicine_count    | **1**                | **0x01**       |
-| `+0x15` | alert_count       | **4**                | **0x04**       |
+| `+0x15` | alert_count       | **3**                | **0x03**       |
 | `+0x16` | stay_days         | **5**                | **0x0005**     |
 
 ## **Vital Signs**
