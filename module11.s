@@ -44,7 +44,7 @@ UNIT_PRICE_OFF              EQU     0x08
 QUANTITY_OFF                EQU     0x0C
 MEDICINE_SIZE               EQU     0x10
 
-PATIENT_ARRAY_MAX           EQU     0x20004D00  ; Safe upper boundary
+PATIENT_ARRAY_MAX           EQU     0x20000100  ; Safe upper boundary
 BILLING_OFF                 EQU     0x184
 TOTAL_BILL_OFF              EQU     0x10
 
