@@ -26,13 +26,6 @@
 // Import patient array and sensors from assembly modules
 extern uint8_t patient_array[];
 
-/* These symbols are exported from data.s as single-byte sensor locations:
-   SENSOR_HR, SENSOR_O2, SENSOR_SBP, SENSOR_DBP */
-extern volatile uint8_t SENSOR_HR;
-extern volatile uint8_t SENSOR_O2;
-extern volatile uint8_t SENSOR_SBP;
-extern volatile uint8_t SENSOR_DBP;
-
 // ============================================================================
 // UART / ITM helpers
 // ============================================================================
