@@ -16,7 +16,7 @@
 * [Testing & Verification](#testing--verification)
 * [System Health Dashboard](#system-health-dashboard)
 * [Appendices](#appendices)
-* [License & Credits](#license-&-credits)
+* [License & Credits](#-license--credits)
 
 ## 🎯 **System Overview**
 
