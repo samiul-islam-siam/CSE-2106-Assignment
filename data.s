@@ -1,8 +1,7 @@
-; ==============================================================================
-; SmartCare-32: Healthcare Monitoring & Billing System
+; ================================================================================
+; SmartCare-32: ARM-Based Healthcare Monitoring & Billing System
 ; File: data.s - Data Sections, Structures, and Constants
-; ARM Cortex-M4 Assembly for Keil uVision
-; ==============================================================================
+; ================================================================================
 	
         AREA    PatientData, DATA, READWRITE
         ALIGN   4
@@ -26,9 +25,9 @@
 		EXPORT	medicine_list_p2
 		EXPORT	medicine_list_p3
 
-; ================================================================================
+; =================================================================================
 ; STRUCTURE CONSTANTS
-; ================================================================================
+; =================================================================================
 
 ; Medicine structure Layout (byte offsets):
 ; +0x00: medicine_id (1 bytes)
@@ -171,9 +170,9 @@ patient3_name   DCB     "Bob Wilson",0
 ; MEDICINE LISTS: every entry = 16 bytes with padding
 ; ==============================================================================
 
-; -------------------------------
+; -----------------------------------------
 ; Patient 1 Medicines (3 items = 48 bytes)
-; -------------------------------
+; -----------------------------------------
         ALIGN 4
 medicine_list_p1
 
@@ -196,54 +195,54 @@ medicine_list_p1
         DCB 0,0					; +0x0E: padding
 
 ; Medicine 3
-        DCB 3									; +0x00: medicine_id
-        DCB 12                                  ; +0x01: dosage_interval                           
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 200                                 ; +0x08: unit_price
-        DCW 3                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 3					; +0x00: medicine_id
+        DCB 12                  ; +0x01: dosage_interval
+        DCB 0,0                 ; padding for alignment
+        DCD 0                   ; +0x04: last_administered_time
+        DCD 200                 ; +0x08: unit_price
+        DCW 3                   ; +0x0C: quantity
+        DCB 0,0                 ; +0x0E: padding
 
 
 
-; -------------------------------
+; -----------------------------------------
 ; Patient 2 Medicines (2 items = 32 bytes)
-; -------------------------------
+; -----------------------------------------
         ALIGN 4
 medicine_list_p2
 
 ; Medicine 1
-        DCB 4									; +0x00: medicine_id
-        DCB 4                                   ; +0x01: dosage_interval
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 0                                  ; +0x08: unit_price
-        DCW 0                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 4					; +0x00: medicine_id
+        DCB 4                   ; +0x01: dosage_interval
+        DCB 0,0                 ; padding for alignment
+        DCD 0                   ; +0x04: last_administered_time
+        DCD 0                   ; +0x08: unit_price
+        DCW 0                   ; +0x0C: quantity
+        DCB 0,0                 ; +0x0E: padding
 
 ; Medicine 2
-        DCB 5									; +0x00: medicine_id
-        DCB 6                                   ; +0x01: dosage_interval
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 150                                 ; +0x08: unit_price
-        DCW 4                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 5					; +0x00: medicine_id
+        DCB 6                   ; +0x01: dosage_interval
+        DCB 0,0                 ; padding for alignment
+        DCD 0                   ; +0x04: last_administered_time
+        DCD 150                 ; +0x08: unit_price
+        DCW 4                   ; +0x0C: quantity
+        DCB 0,0                 ; +0x0E: padding
 
 
-; -------------------------------
+; -----------------------------------------
 ; Patient 3 Medicines (1 item = 16 bytes)
-; -------------------------------
+; -----------------------------------------
         ALIGN 4
 medicine_list_p3
 
-        DCB 6									; +0x00: medicine_id
-        DCB 24                                  ; +0x01: dosage_interval
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 300                                 ; +0x08: unit_price
-        DCW 2                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 6					; +0x00: medicine_id
+        DCB 24                  ; +0x01: dosage_interval
+        DCB 0,0                 ; padding for alignment
+        DCD 0                   ; +0x04: last_administered_time
+        DCD 300                 ; +0x08: unit_price
+        DCW 2                   ; +0x0C: quantity
+        DCB 0,0                 ; +0x0E: padding
 
 
 ; ==============================================================================
@@ -367,7 +366,7 @@ ERROR_MEMORY_OVERFLOW       EQU     0x03
 ; +0x03: padding (1 byte)
 ; +0x04: timestamp (4 bytes)
 ; +0x08: error_value (4 bytes)
-; +0x0C: reserved (4 bytes)
+; +0x0C: reserved patient_id (4 bytes)
 
 ERROR_RECORD_SIZE           EQU     16
 MAX_ERROR_RECORDS           EQU     50

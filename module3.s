@@ -1,4 +1,9 @@
-        AREA    module3_code, CODE, READONLY
+; ==============================================================================
+; SmartCare-32: Module 3 — Vital Threshold Alert Module
+; File: module3.s
+; ==============================================================================
+
+		AREA    Module3_code, CODE, READONLY
         ALIGN   2
         EXPORT  check_vital_thresholds
         THUMB

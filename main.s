@@ -1,12 +1,11 @@
 ; ==============================================================================
-; SmartCare-32: Complete Integration (Modules 1-10)
+; SmartCare-32: Module Integration (Modules 1-10)
 ; File: main.s
-; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
-        AREA    |.text|, CODE, READONLY
+        AREA    main_code, CODE, READONLY
 
         IMPORT  patient_record_initialization
         IMPORT  acquire_vital_signs

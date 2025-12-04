@@ -1,4 +1,10 @@
-        AREA    module6_code, CODE, READONLY
+; ==============================================================================
+; SmartCare-32: Module 6 — Daily Room Rent Calculation
+; File: module6.s
+; ==============================================================================
+
+
+		AREA    Module6_code, CODE, READONLY
         ALIGN   2
         EXPORT  compute_room_cost
 

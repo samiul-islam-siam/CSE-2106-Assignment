@@ -1,7 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 11 - System Error Detection & Logging
 ; File: module11.s
-; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
@@ -27,6 +26,7 @@
         IMPORT  SENSOR_O2
         IMPORT  SENSOR_SBP
         IMPORT  SENSOR_DBP
+		IMPORT  patient_array
 
 ; ==============================================================================
 ; CONSTANTS
@@ -47,6 +47,8 @@ MEDICINE_SIZE               EQU     0x10
 PATIENT_ARRAY_MAX           EQU     0x20000100  ; Safe upper boundary
 BILLING_OFF                 EQU     0x184
 TOTAL_BILL_OFF              EQU     0x10
+	
+PATIENT_SIZE                EQU     412
 
 ; ==============================================================================
 ; FUNCTION: check_sensor_malfunction
@@ -315,7 +317,7 @@ cmo_done
         ENDP
 
 ; ==============================================================================
-; FUNCTION: log_error_to_flash
+; FUNCTION: log_error_to_flash (modified to store patient_id too)
 ; Description: Logs error record to simulated Flash memory
 ; Parameters:
 ;   R0 = error_type
@@ -349,21 +351,40 @@ log_error_to_flash PROC
         LDR     R8, =error_log_buffer
         ADD     R8, R8, R3              ; R8 = &error_log[error_count]
         
-        ; Write error record
+        ; -----------------------------
+        ; Compute patient_id from patient_array + (patient_index * PATIENT_SIZE)
+        ; Input: R5 = patient_index
+        ; Output: R1 = patient_id (uint32)
+        ; -----------------------------
+        LDR     R0, =patient_array
+        MOV     R1, R5                  ; patient_index -> R1
+        MOV     R2, #PATIENT_SIZE
+        MUL     R1, R1, R2              ; R1 = index * PATIENT_SIZE
+        ADD     R0, R0, R1              ; R0 = &patient_array[index]
+        LDR     R1, [R0, #0]            ; R1 = patient_id (4 bytes)
+        
+        ; Write error record (keep existing small fields for compat)
         STRB    R4, [R8, #0]            ; error_type
-        STRB    R5, [R8, #1]            ; patient_index
+        STRB    R5, [R8, #1]            ; patient_index (1 byte preserved)
         STRB    R6, [R8, #2]            ; error_code
         
         ; Get timestamp
         LDR     R2, =system_clock
         LDR     R2, [R2]
-        STR     R2, [R8, #4]            ; timestamp
+        STR     R2, [R8, #4]            ; timestamp (4 bytes)
         
-        STR     R7, [R8, #8]            ; error_value
+        STR     R7, [R8, #8]            ; error_value (4 bytes)
+        
+        ; Store full 32-bit patient_id into reserved area offset 12..15
+        STR     R1, [R8, #12]           ; NEW: store patient_id (uint32)
         
         ; Increment error_count
-        ADD     R1, R1, #1
-        STR     R1, [R0]
+        ADD     R1, R1, #1              ; Note: R1 used above for patient_id; reuse temp
+        SUB     R1, R1, #1              ; restore original error_count value in R1
+        LDR     R0, =error_count
+        LDR     R2, [R0]                ; R2 = old error_count
+        ADD     R2, R2, #1
+        STR     R2, [R0]
         
 letf_full
         POP     {R4-R8, PC}

@@ -195,9 +195,9 @@ void Print_Error_Log(void) {
     }
     
     ITM_SendString("\n\n");
-    ITM_SendString("========================================\n");
-    ITM_SendString("     SYSTEM ERROR LOG (Module 11)      \n");
-    ITM_SendString("========================================\n");
+    ITM_SendString("==================================================\n");
+    ITM_SendString("           SYSTEM ERROR LOG      				          \n");
+    ITM_SendString("==================================================\n");
     ITM_SendString("Total Errors: ");
     ITM_SendInt(count);
     ITM_SendString("\n\n");
@@ -206,11 +206,13 @@ void Print_Error_Log(void) {
         uint8_t *record = error_log_buffer + (i * 16);
         
         uint8_t error_type = record[0];
-        uint8_t patient_idx = record[1];
+        // uint8_t patient_idx = record[1];
         uint8_t error_code = record[2];
         uint32_t timestamp = *((uint32_t*)(record + 4));
         uint32_t error_value = *((uint32_t*)(record + 8));
+				uint32_t patient_id = *((uint32_t*)(record + 12)); /* read 4-byte patient ID */
         
+				ITM_SendString("--------------------------------------------------\n");
         ITM_SendString("Error #");
         ITM_SendInt(i + 1);
         ITM_SendString("\n");
@@ -244,17 +246,17 @@ void Print_Error_Log(void) {
         }
         ITM_SendString("\n");
         
-        ITM_SendString("  Patient: ");
-        ITM_SendInt(patient_idx);
+        ITM_SendString("  Patient ID: ");
+        ITM_SendInt(patient_id); /* print full patient id */
         ITM_SendString("\n");
         
         ITM_SendString("  Timestamp: ");
         ITM_SendInt(timestamp);
         ITM_SendString(" sec\n");
-        ITM_SendString("----------------------------------------\n");
+        ITM_SendString("--------------------------------------------------\n");
     }
     
-    ITM_SendString("========================================\n\n");
+    ITM_SendString("==================================================\n\n\n");
 }
 // ============================================================================
 // Public report generator function to be called from assembly/startup

@@ -1,4 +1,10 @@
-        AREA    MODULE_7, CODE, READONLY
+; ==============================================================================
+; SmartCare-32: Module 7 — Medicine Billing Module
+; File: module7.s
+; ==============================================================================
+
+
+		AREA    Module7_code, CODE, READONLY
         THUMB
 
 MED_ID_OFF             EQU     0x00

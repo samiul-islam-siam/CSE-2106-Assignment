@@ -1,7 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 9 - Sort Patients by Criticality
 ; File: module9.s
-; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8

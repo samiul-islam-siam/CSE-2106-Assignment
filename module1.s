@@ -1,13 +1,12 @@
 ; ==============================================================================
-; SmartCare-32: Module 1 - Patient Record Initialization (STACK FIX)
-; File: module1. s
-; ARM Cortex-M4 Assembly for Keil uVision
+; SmartCare-32: Module 1 - Patient Record Initialization
+; File: module1.s
 ; ==============================================================================
 
         PRESERVE8
         THUMB
 
-        AREA    Module1Code, CODE, READONLY
+        AREA    Module1_Code, CODE, READONLY
         
         EXPORT  patient_record_initialization
 
@@ -67,7 +66,7 @@ patient_record_initialization PROC
         ; Initialize counters and flags to 0
         ; ======================================================================
         MOV     R1, #0
-        ;STRB    R1, [R0, #ALERT_COUNT_OFF]
+        ;STRB    R1, [R0, #ALERT_COUNT_OFF]			; It will overwrite all counts to zero
         STRB    R1, [R0, #VITAL_BUFFER_INDEX_OFF]
         STRB    R1, [R0, #ALERT_FLAG_OFF]
         STRB    R1, [R0, #DOSAGE_DUE_FLAG_OFF]

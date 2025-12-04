@@ -1,5 +1,5 @@
 ;===============================================================================
-; Module 10 - UART Summary Report Generator
+; SmartCare-32: Module 10 - UART Summary Report Generator
 ; Purpose: Bridge module that calls C functions from main.c
 ; This module serves as the interface between assembly and C code
 ;===============================================================================

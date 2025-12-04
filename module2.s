@@ -1,13 +1,12 @@
 ; ==============================================================================
 ; SmartCare-32: Module 2 - Vital Sign Data Acquisition
 ; File: module2.s
-; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
         THUMB
 
-        AREA    Module2Code, CODE, READONLY
+        AREA    Module2_Code, CODE, READONLY
         
         EXPORT  acquire_vital_signs
 

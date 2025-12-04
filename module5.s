@@ -1,7 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 5 - Treatment Cost Computation
 ; File: module5.s
-; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8

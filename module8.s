@@ -1,4 +1,10 @@
-        AREA    module8_code, CODE, READONLY
+; ==============================================================================
+; SmartCare-32: Module 8 — Patient Bill Aggregator
+; File: module8.s
+; ==============================================================================
+
+
+		AREA    Module8_code, CODE, READONLY
         ALIGN   2
         EXPORT  aggregate_total_bill
 

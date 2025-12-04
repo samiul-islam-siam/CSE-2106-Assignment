@@ -1,4 +1,9 @@
-        AREA    MODULE_4, CODE, READONLY
+; ==============================================================================
+; SmartCare-32: Module 4 - Medicine Administration Scheduler
+; File: module4.s
+; ==============================================================================
+
+		AREA    Module4_code, CODE, READONLY
         THUMB
             
         IMPORT  system_clock
