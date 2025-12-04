@@ -67,7 +67,7 @@ patient_record_initialization PROC
         ; Initialize counters and flags to 0
         ; ======================================================================
         MOV     R1, #0
-        STRB    R1, [R0, #ALERT_COUNT_OFF]
+        ;STRB    R1, [R0, #ALERT_COUNT_OFF]
         STRB    R1, [R0, #VITAL_BUFFER_INDEX_OFF]
         STRB    R1, [R0, #ALERT_FLAG_OFF]
         STRB    R1, [R0, #DOSAGE_DUE_FLAG_OFF]
