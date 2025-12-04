@@ -7,15 +7,14 @@
 * [System Overview](#-system-overview)
 * [Key Features](#key-features)
 * [Technical Specifications](#technical-specifications)
-* [Architecture](#-architecture)
+* [Architecture](#architecture)
 * [Module Descriptions](#-module-descriptions)
-* [Module 1–10 (summary)](#summary)
-* [Module 11 — Error Detection & Logging](#module-11--error-detection--logging)
-* [Memory Layout](#memory-layout)
+* [Module 11 — Error Detection & Logging](#module-11-error-detection--logging)
+* [Memory Layout](#-module-11-memory-layout)
 * [Build & Deployment](#build--deployment)
-* [Testing & Verification](#testing--verification)
-* [System Health Dashboard](#system-health-dashboard)
-* [Appendices](#appendices)
+* [Testing & Verification](#-testing--verification)
+* [System Health Dashboard](#-system-health-dashboard)
+* [Appendices](#-appendix)
 * [License & Credits](#-license--credits)
 
 ## 🎯 **System Overview**
@@ -50,7 +49,7 @@ The system manages multiple patients, monitors vital signs, schedules medicine a
 | **Alert Buffer** | 20 entries per patient                    |
 | **Error Log**    | 50 error records (simulated Flash)        |
 
-## 🏗️ **Architecture**
+## **Architecture**
 
 ### **System Diagram**
 
@@ -829,7 +828,7 @@ Error #4: MEMORY OVERFLOW
 &error_count       → 04 00 00 00   (4 errors logged)
 ```
 
-# 🏗️ **Build & Deployment**
+# **Build & Deployment**
 
 ## **Project Structure**
 
