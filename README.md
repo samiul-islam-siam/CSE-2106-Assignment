@@ -250,7 +250,7 @@ LATEST VITAL SIGNS:
 --------------------------------------------------
 ALERT SUMMARY:
 --------------------------------------------------
-  Total Alerts     : 3 (Critical condition)
+  Total Alerts     : 8 (Critical condition)
 --------------------------------------------------
 BILLING SUMMARY:
 --------------------------------------------------
@@ -437,15 +437,23 @@ Error #2
 Error #3
   Type: MEMORY OVERFLOW
   Code: Address Boundary
-  Value: 0x536871548
-  Patient ID: 1002
+  Value: 0x536871604
+  Patient ID: 1001
   Timestamp: 3000 sec
 --------------------------------------------------
 --------------------------------------------------
 Error #4
   Type: MEMORY OVERFLOW
   Code: Address Boundary
-  Value: 0x536871960
+  Value: 0x536872016
+  Patient ID: 1002
+  Timestamp: 3000 sec
+--------------------------------------------------
+--------------------------------------------------
+Error #5
+  Type: MEMORY OVERFLOW
+  Code: Address Boundary
+  Value: 0x536872428
   Patient ID: 1003
   Timestamp: 3000 sec
 --------------------------------------------------
@@ -488,8 +496,8 @@ B8 0B 00 00    # Timestamp=3000
 
 * Bad patient pointers written:
 
-    * **0x536871548**
-    * **0x536871960**
+    * **0x536871604**
+    * **0x53687206**
 
 ### Memory Dump
 
@@ -622,35 +630,35 @@ PATIENT_ARRAY_MAX EQU 0x20000100
 
 | Position | Patient ID | Name       | alert_count | Total Bill |
 | -------- | ---------- | ---------- | ----------- | ---------- |
-| 0        | 1003       | Bob Wilson | 3           | $50,500    |
-| 1        | 1001       | John Doe   | 2           | $53,900    |
+| 0        | 1003       | Bob Wilson | 8           | $50,500    |
+| 1        | 1001       | John Doe   | 4           | $53,900    |
 | 2        | 1002       | Jane Smith | 0           | $122,200   |
 
 ## **Base Addresses (After Sorting)**
 
 | Patient Position | Patient Name | RAM Address |
 |------------------| ------------ | ----------- |
-| 1                | Bob Wilson   | 0x200000E0  |
-| 2                | John Doe     | 0x2000027C  |
-| 3                | Jane Smith   | 0x20000418  |
+| 1                | Bob Wilson   | 0x200002B4  |
+| 2                | John Doe     | 0x20000450  |
+| 3                | Jane Smith   | 0x200005EC  |
 
 # 🧍‍♂️ **Patient 1 — Bob Wilson (CRITICAL)**
 
-**Base Address: 0x200000E0**
+**Base Address: 0x200002B4**
 
 ## **Basic Information**
 
 | Offset | Field             | Value (Dec)    | Value (Hex) |
 | ------ | ----------------- | -------------- | ----------- |
 | +0x00  | patient_id        | 1003           | 0x03EB      |
-| +0x04  | name_ptr          | → "Bob Wilson" | 0x20000074  |
+| +0x04  | name_ptr          | → "Bob Wilson" | 0x20000248  |
 | +0x08  | age               | 67             | 0x43        |
 | +0x09  | treatment_code    | 6              | 0x06        |
 | +0x0A  | ward_number       | 201            | 0x00C9      |
 | +0x0C  | room_daily_rate   | 3000           | 0x00000BB8  |
-| +0x10  | medicine_list_ptr | → medicine_p3  | 0x20000080  |
+| +0x10  | medicine_list_ptr | → medicine_p3  | 0x200002A4  |
 | +0x14  | medicine_count    | 1              | 0x01        |
-| +0x15  | alert_count       | 3              | 0x03        |
+| +0x15  | alert_count       | 8              | 0x08        |
 | +0x16  | stay_days         | 5              | 0x0005      |
 
 ## **Vital Signs**
@@ -684,21 +692,21 @@ Error #1: SENSOR MALFUNCTION
 
 # 🧍‍♂️ **Patient 2 — John Doe (MODERATE)**
 
-**Base Address: 0x2000027C**
+**Base Address: 0x20000450**
 
 ## **Basic Information**
 
 | Offset | Field             | Value (Dec)   | Value (Hex) |
 | ------ | ----------------- | ------------- | ----------- |
 | +0x00  | patient_id        | 1001          | 0x03E9      |
-| +0x04  | name_ptr          | → "John Doe"  | 0x2000005C  |
+| +0x04  | name_ptr          | → "John Doe"  | 0x20000230  |
 | +0x08  | age               | 45            | 0x2D        |
 | +0x09  | treatment_code    | 5             | 0x05        |
 | +0x0A  | ward_number       | 101           | 0x0065      |
 | +0x0C  | room_daily_rate   | 2000          | 0x000007D0  |
-| +0x10  | medicine_list_ptr | → medicine_p1 | 0x200000B0  |
+| +0x10  | medicine_list_ptr | → medicine_p1 | 0x20000254  |
 | +0x14  | medicine_count    | 3             | 0x03        |
-| +0x15  | alert_count       | 2             | 0x02        |
+| +0x15  | alert_count       | 4             | 0x04        |
 | +0x16  | stay_days         | 7             | 0x0007      |
 
 ## **Vital Signs**
@@ -731,25 +739,25 @@ Error #2: INVALID DOSAGE
 
 Error #3: MEMORY OVERFLOW
   - Code: Address Boundary
-  - Value: 0x536871548
+  - Value: 0x536871604
   - Timestamp: 3000 sec
 ```
 
 # 🧍‍♀️ **Patient 3 — Jane Smith (STABLE)**
 
-**Base Address: 0x20000418**
+**Base Address: 0x200005EC**
 
 ## **Basic Information**
 
 | Offset | Field             | Value (Dec)    | Value (Hex) |
 | ------ | ----------------- | -------------- | ----------- |
 | +0x00  | patient_id        | 1002           | 0x03EA      |
-| +0x04  | name_ptr          | → "Jane Smith" | 0x20000068  |
+| +0x04  | name_ptr          | → "Jane Smith" | 0x2000023C  |
 | +0x08  | age               | 32             | 0x20        |
 | +0x09  | treatment_code    | 2              | 0x02        |
 | +0x0A  | ward_number       | 102            | 0x0066      |
 | +0x0C  | room_daily_rate   | 5000           | 0x00001388  |
-| +0x10  | medicine_list_ptr | → medicine_p2  | 0x200000D0  |
+| +0x10  | medicine_list_ptr | → medicine_p2  | 0x20000284  |
 | +0x14  | medicine_count    | 2              | 0x02        |
 | +0x15  | alert_count       | 0              | 0x00        |
 | +0x16  | stay_days         | 12             | 0x000C      |
@@ -769,9 +777,9 @@ Error #3: MEMORY OVERFLOW
 | ------ | -------------- | ----------- | ---------- |
 | +0x184 | treatment_cost | 50,000      | 0x0000C350 |
 | +0x188 | room_cost      | 57,000      | 0x0000DEA8 |
-| +0x18C | medicine_cost  | 14,880      | 0x00003A20 |
+| +0x18C | medicine_cost  | 72,00       | 0x00001C20 |
 | +0x190 | lab_test_cost  | 8,000       | 0x00001F40 |
-| +0x194 | total_bill     | 129,880     | 0x0001FB58 |
+| +0x194 | total_bill     | 122,200     | 0x0001DD58 |
 | +0x198 | overflow_flag  | 0           | 0x00       |
 
 ## **Associated Errors**
@@ -779,7 +787,7 @@ Error #3: MEMORY OVERFLOW
 ```
 Error #4: MEMORY OVERFLOW
   - Code: Address Boundary
-  - Value: 0x536871960
+  - Value: 0x536872016
   - Timestamp: 3000 sec
 ```
 
@@ -791,27 +799,27 @@ Error #4: MEMORY OVERFLOW
 
 ```
 // Sorted Patient IDs
-0x200000E0         → EB 03 00 00   (1003 - Bob Wilson)
-0x2000027C         → E9 03 00 00   (1001 - John Doe)
-0x20000418         → EA 03 00 00   (1002 - Jane Smith)
+0x200002B4         → EB 03 00 00   (1003 - Bob Wilson)
+0x20000450         → E9 03 00 00   (1001 - John Doe)
+0x200005EC         → EA 03 00 00   (1002 - Jane Smith)
 ```
 
 #### **📌 Alert Counts (Descending)**
 
 ```
 // Alert Counts
-0x200000E0 + 0x15  → 03   (Bob: 3 alerts - CRITICAL)
-0x2000027C + 0x15  → 02   (John: 2 alerts - MODERATE)
-0x20000418 + 0x15  → 00   (Jane: 0 alerts - STABLE)
+0x200002B4 + 0x15  → 03   (Bob: 3 alerts - CRITICAL)
+0x20000450 + 0x15  → 02   (John: 2 alerts - MODERATE)
+0x200005EC + 0x15  → 00   (Jane: 0 alerts - STABLE)
 ```
 
 ### **📌 Total Bills**
 
 ```
 // Total Bills
-0x200000E0 + 0x194 → 44 C5 00 00   ($50,500)
-0x2000027C + 0x194 → 8C D2 00 00   ($53,900)
-0x20000418 + 0x194 → 58 FB 01 00   ($129,880)
+0x200002B4 + 0x194 → 44 C5 00 00   ($50,500)
+0x20000450 + 0x194 → 8C D2 00 00   ($53,900)
+0x200005EC + 0x194 → 58 FB 01 00   ($129,880)
 ```
 
 ### **📌 Error Flag**
@@ -825,7 +833,7 @@ Error #4: MEMORY OVERFLOW
 
 ```
 // Error Count
-&error_count       → 04 00 00 00   (4 errors logged)
+&error_count       → 05 00 00 00   (5 errors logged)
 ```
 
 # **Build & Deployment**
@@ -932,7 +940,7 @@ SmartCare-32/
 ║  Modules Operational:       11/11                         ║
 ║  Patients Monitored:        3                             ║
 ║  Total Alerts Generated:    5                             ║
-║  Error Flag:                ⚠ ACTIVE (4 errors detected)  ║
+║  Error Flag:                ⚠ ACTIVE (5 errors detected)  ║
 ╠═══════════════════════════════════════════════════════════╣
 ║  CRITICAL ISSUES:                                         ║
 ║    • Sensor Malfunction:     1 (HR sensor)                ║
