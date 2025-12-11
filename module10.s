@@ -1,10 +1,9 @@
 ;===============================================================================
-; Module 10 - Patient Report Generator (All Logic in Assembly)
-; Follows module10_report. s pattern - Minimal C dependency
+; Module 10 - Patient Report Generator
 ;===============================================================================
 
         THUMB
-        AREA    module10_data, DATA, READWRITE
+        AREA    Module10_code, DATA, READWRITE
 
 ; Utility buffers
 nl          DCB     0x0A,0
@@ -12,13 +11,13 @@ int_dum     DCB     "                      ",0
 line        DCB     "                                        ",0
 
 ; Report Header Strings
-hdr1        DCB     "==================================================",0
+hdr1        DCB     "==============================================================",0
 hdr2        DCB     "    PATIENT SUMMARY REPORT",0
 hdr3        DCB     "    SmartCare-32: Healthcare Monitoring System",0
 
 ; Patient Info Section
 info_hdr    DCB     "PATIENT INFORMATION:",0
-divider     DCB     "--------------------------------------------------",0
+divider     DCB     "--------------------------------------------------------------",0
 pid_lbl     DCB     "  Patient ID       : ",0
 pid_str     DCB     "  Patient ID       :                    ",0
 age_lbl     DCB     "  Age              : ",0
@@ -31,7 +30,7 @@ vital_hdr   DCB     "LATEST VITAL SIGNS:",0
 hr_lbl      DCB     "  Heart Rate       : ",0
 hr_str      DCB     "  Heart Rate       :                     bpm",0
 bp_lbl      DCB     "  Blood Pressure   : ",0
-bp_str      DCB     "  Blood Pressure   :           /            mmHg",0
+bp_str      DCB     "  Blood Pressure   :           /         mmHg",0
 o2_lbl      DCB     "  SpO2 (Oxygen)    : ",0
 o2_str      DCB     "  SpO2 (Oxygen)    :                     %",0
 
@@ -46,19 +45,19 @@ status_crit DCB     " (Critical condition)",0
 ; Billing Section
 bill_hdr    DCB     "BILLING SUMMARY:",0
 bill_lbl    DCB     "  Total Bill       : $",0
-bill_str    DCB     "  Total Bill       : $                  USD",0
+bill_str    DCB     "  Total Bill       : $                   USD",0
 
-end_rpt     DCB     "    End of Report",0
+end_rpt     DCB     "              End of Report",0
 
 ; Templates for reset
 pid_tmpl    DCB     "  Patient ID       :                    ",0
 age_tmpl    DCB     "  Age              :                     years",0
 ward_tmpl   DCB     "  Ward Number      :                    ",0
 hr_tmpl     DCB     "  Heart Rate       :                     bpm",0
-bp_tmpl     DCB     "  Blood Pressure   :           /            mmHg",0
+bp_tmpl     DCB     "  Blood Pressure   :           /         mmHg",0
 o2_tmpl     DCB     "  SpO2 (Oxygen)    :                     %",0
 alert_tmpl  DCB     "  Total Alerts     :                    ",0
-bill_tmpl   DCB     "  Total Bill       : $                  USD",0
+bill_tmpl   DCB     "  Total Bill       : $                   USD",0
 
         AREA    |.text|, CODE, READONLY
         EXPORT  Generate_Summary_Report
@@ -216,10 +215,10 @@ print_patient
         LDR     r0, =nl
         BL      PrintByteString
         
-        ; Load and print Blood Pressure (SBP/DBP)
+        ; Load and print Blood Pressure (DBP/SBP)
         BL      reset_int_dum
         ADD     r6, r5, #VITALS_OFF
-        LDRB    r2, [r6, #1]
+        LDRB    r2, [r6, #2]
         LDR     r0, =int_dum
         MOVS    r7, #0
         BL      push_integer
@@ -236,7 +235,7 @@ print_patient
         
         ; Load DBP
         BL      reset_int_dum
-        LDRB    r2, [r6, #2]
+        LDRB    r2, [r6, #1]
         LDR     r0, =int_dum
         MOVS    r7, #0
         BL      push_integer
@@ -362,7 +361,6 @@ print_status
         
         ADDS    r12, #1
         B       check_loop
-        LTORG
 
 check_loop
         CMP     r12, r10
@@ -517,4 +515,5 @@ done_pbs
         POP     {r4-r7, pc}
         ENDP
 
+        LTORG
         END

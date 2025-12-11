@@ -1,7 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 11 - System Error Detection & Logging
 ; File: module11.s
-; ARM Cortex-M4 Assembly for Keil uVision
 ; ==============================================================================
 
         PRESERVE8
@@ -10,14 +9,14 @@
 ; ==============================================================================
 ; DATA SECTION - Error Printing Strings
 ; ==============================================================================
-        AREA    Module11Data, DATA, READWRITE
+        AREA    Module11_Code, DATA, READWRITE
 
 ; Error log printing strings
 nl_err      DCB     0x0A,0
-err_hdr1    DCB     "==================================================",0
+err_hdr1    DCB     "==============================================================",0
 err_hdr2    DCB     "           SYSTEM ERROR LOG",0
 err_total   DCB     "Total Errors: ",0
-err_div     DCB     "--------------------------------------------------",0
+err_div     DCB     "--------------------------------------------------------------",0
 err_no      DCB     "Error #",0
 err_type_l  DCB     "  Type: ",0
 err_sensor  DCB     "SENSOR MALFUNCTION",0
@@ -363,6 +362,7 @@ log_error_to_flash PROC
         
 letf_full
         POP     {R4-R8, PC}
+		DCB 	0x00, 0x00
         LTORG
         ENDP
 
@@ -373,6 +373,7 @@ get_error_count PROC
         LDR     R0, =error_count
         LDR     R0, [R0]
         BX      LR
+		DCB 	0x00, 0x00
         LTORG
         ENDP
 
@@ -415,6 +416,7 @@ Print_Error_Log PROC
         BL      PrintErrString
         
         MOVS    r12, #0
+		DCB 	0x00, 0x00, 0x00, 0x00
         LTORG
 
 error_loop
@@ -466,6 +468,7 @@ print_err_type
         CMP     r4, #ERROR_INVALID_DOSAGE
         BEQ     handle_dosage
         B       handle_memory
+		DCB 	0x00, 0x00
         LTORG
 
 handle_sensor
@@ -530,6 +533,7 @@ print_code
         BL      PrintErrString
         MOV     r0, r6
         BL      PrintErrInt
+		DCB 	0x00, 0x00
         LTORG
 
 print_common
@@ -566,6 +570,7 @@ no_errors_detected
         BL      PrintErrString
         LDR     r0, =nl_err
         BL      PrintErrString
+		DCB 	0x00, 0x00
         LTORG
 
 error_done
@@ -635,6 +640,7 @@ pei_print_loop
         B       pei_print_loop
 pei_done
         POP     {r4-r7, pc}
+		DCB 	0x00, 0x00
         LTORG
         ENDP
 
