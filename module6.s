@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 6 – Daily Room Rent Calculation
-; File: module6.s - FIXED: BILLING_OFF = 0x80
+; File: module6.s - FIXED: BILLING_OFF = 0x94
 ; ==============================================================================
 
 		AREA    Module6_code, CODE, READONLY
@@ -9,7 +9,7 @@
         THUMB
 
 ; CONSTANTS - FIXED
-BILLING_OFF             EQU     0x80    ; CHANGED from 0x184
+BILLING_OFF             EQU     0x94    ; MOVED from 0x80
 ROOM_DAILY_RATE_OFF     EQU     0x0C
 STAY_DAYS_OFF           EQU     0x16
 ROOM_COST_OFF           EQU     0x04
