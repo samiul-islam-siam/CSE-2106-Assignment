@@ -1,6 +1,6 @@
 ; ================================================================================
 ; SmartCare-32: ARM-Based Healthcare Monitoring & Billing System
-; File: data.s - FIXED:  Preserve lab_test_cost initialization
+; File: data.s - FIXED: 16-byte alerts, 5 max, BILLING_OFF=0x94
 ; ================================================================================
 	
         AREA    PatientData, DATA, READWRITE
@@ -40,12 +40,12 @@ MEDICINE_SIZE          EQU 0x10
 VITAL_SIZE      EQU     4
 VITAL_COUNT     EQU     10
 
-ALERT_SIZE      EQU     12
-ALERT_COUNT     EQU     5
+ALERT_SIZE      EQU     16      ; CHANGED from 12
+ALERT_COUNT     EQU     5       ; Keep 5 alerts
 
 BILLING_SIZE    EQU     24
 
-PATIENT_SIZE            EQU     152
+PATIENT_SIZE            EQU     184     ; CHANGED from 152
 
 PATIENT_ID_OFF          EQU     0x00
 NAME_PTR_OFF            EQU     0x04
@@ -62,7 +62,7 @@ VITAL_BUFFER_INDEX_OFF  EQU     0x40
 ALERT_FLAG_OFF          EQU     0x41
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 ALERT_BUFFER_OFF        EQU     0x44
-BILLING_OFF             EQU     0x80
+BILLING_OFF             EQU     0x94    ; MOVED from 0x80
 
 TREATMENT_COST_OFF      EQU     0x00
 ROOM_COST_OFF           EQU     0x04
@@ -194,7 +194,7 @@ medicine_list_p3
 
 
 ; ==============================================================================
-; PATIENT ARRAY - 152 bytes each
+; PATIENT ARRAY - 184 bytes each
 ; ==============================================================================
         ALIGN   4
 patient_array
@@ -217,15 +217,15 @@ patient1
         SPACE   40
         ; +0x40: vital_buffer_index, alert_flag, dosage_due_flag, padding
         DCB     0,0,0,0
-        ; +0x44: alert_buffer[5] = 60 bytes
-        SPACE   60
-        ; +0x80:  Billing (24 bytes)
-        DCD     0                       ; +0x80: treatment_cost
-        DCD     0                       ; +0x84: room_cost
-        DCD     0                       ; +0x88: medicine_cost
-        DCD     3000                    ; +0x8C: lab_test_cost ? KEEP THIS
-        DCD     0                       ; +0x90: total_bill
-        DCD     0                       ; +0x94: overflow_flag
+        ; +0x44: alert_buffer[5] = 80 bytes
+        SPACE   80
+        ; +0x94: Billing (24 bytes)
+        DCD     0                       ; +0x94: treatment_cost
+        DCD     0                       ; +0x98: room_cost
+        DCD     0                       ; +0x9C: medicine_cost
+        DCD     3000                    ; +0xA0: lab_test_cost
+        DCD     0                       ; +0xA4: total_bill
+        DCD     0                       ; +0xA8: overflow_flag
 
 
 ; ------------------------------------------------------------------------------
@@ -244,11 +244,11 @@ patient2
         DCW     12
         SPACE   40
         DCB     0,0,0,0
-        SPACE   60
+        SPACE   80
         DCD     0
         DCD     0
         DCD     0
-        DCD     8000                    ; lab_test_cost ? KEEP THIS
+        DCD     8000
         DCD     0
         DCD     0
 
@@ -269,11 +269,11 @@ patient3
         DCW     5
         SPACE   40
         DCB     0,0,0,0
-        SPACE   60
+        SPACE   80
         DCD     0
         DCD     0
         DCD     0
-        DCD     2500                    ; lab_test_cost ? KEEP THIS
+        DCD     2500
         DCD     0
         DCD     0
 
