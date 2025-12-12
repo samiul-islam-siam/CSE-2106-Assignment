@@ -1,177 +1,88 @@
 ; ==============================================================================
-; SmartCare-32: Healthcare Monitoring & Billing System
-; File: module9.s - Patient Sorting by Criticality
-; ARM Cortex-M4 Assembly for Keil uVision
-; ==============================================================================
-;
-; Function: sort_patients_by_criticality
-; Description: Sorts an array of patient structures in descending order
-;              based on alert_count using bubble sort algorithm.
-;              Patients with more alerts are prioritized (ICU triage).
-;
-; C Reference:
-; void sort_patients_by_criticality(Patient *patients, uint8_t count) {
-;     for (uint8_t i = 0; i < count - 1; i++) {
-;         for (uint8_t j = 0; j < count - i - 1; j++) {
-;             if (patients[j].alert_count < patients[j + 1].alert_count) {
-;                 Patient temp = patients[j];
-;                 patients[j] = patients[j + 1];
-;                 patients[j + 1] = temp;
-;             }
-;         }
-;     }
-; }
-;
+; SmartCare-32: Module 9 - Sort Patients by Criticality
+; File: module9.s - OPTIMIZED: PATIENT_SIZE = 152
 ; ==============================================================================
 
+        PRESERVE8
+        THUMB
         AREA    Module9Code, CODE, READONLY
-        ALIGN   4
-
-; ==============================================================================
-; EXPORT/IMPORT DECLARATIONS
-; ==============================================================================
+        
         EXPORT  sort_patients_by_criticality
 
 ; ==============================================================================
-; CONSTANTS - Patient Structure Offsets
+; CONSTANTS
 ; ==============================================================================
-; Patient structure offset:
-;   +0x15: alert_count (1 byte)
-
-ALERT_COUNT_OFF         EQU     0x15    ; Offset to alert_count in Patient
-PATIENT_STRUCT_SIZE     EQU     412     ; Size of Patient structure in bytes
+PATIENT_SIZE            EQU     152     ; CHANGED from 412
+ALERT_COUNT_OFF         EQU     0x15
 
 ; ==============================================================================
-; Function: sort_patients_by_criticality
-; Description: Bubble sort patients by alert_count (descending order)
-;
-; Input:  R0 = Pointer to patient array
-;         R1 = Number of patients (count)
-; Output: None (sorts array in place)
-; Modifies: R0-R12
-;
-; Algorithm: Bubble Sort (descending by alert_count)
-;   for i = 0 to count-2:
-;       for j = 0 to count-i-2:
-;           if patients[j].alert_count < patients[j+1].alert_count:
-;               swap patients[j] and patients[j+1]
+; FUNCTION:  sort_patients_by_criticality
 ; ==============================================================================
 sort_patients_by_criticality PROC
-        PUSH    {R4-R11, LR}            ; Preserve registers
-
-        ; Validate input: if count <= 1, nothing to sort
-        CMP     R1, #2                  ; Need at least 2 patients to sort
-        BLT     sort_done               ; If count < 2, exit
-
-        ; Initialize registers
-        MOV     R4, R0                  ; R4 = patients array base pointer
-        MOV     R5, R1                  ; R5 = count
-
-        ; ======================================================================
-        ; Outer loop: for i = 0 to count - 2
-        ; R6 = outer loop counter (i)
-        ; ======================================================================
-        MOV     R6, #0                  ; i = 0
-
+        PUSH    {R4-R11, LR}
+        
+        CMP     R1, #1
+        BLE     sort_done
+        
+        MOV     R4, R0
+        MOV     R5, R1
+        
 outer_loop
-        ; Check outer loop condition: i < count - 1
-        SUB     R7, R5, #1              ; R7 = count - 1
-        CMP     R6, R7
-        BGE     sort_done               ; If i >= count-1, sorting complete
-
-        ; ======================================================================
-        ; Inner loop: for j = 0 to count - i - 2
-        ; R8 = inner loop counter (j)
-        ; ======================================================================
-        MOV     R8, #0                  ; j = 0
-
+        MOVS    R6, #0
+        MOVS    R7, #0
+        SUBS    R8, R5, #1
+        
 inner_loop
-        ; Calculate inner loop limit: count - i - 1
-        SUB     R7, R5, R6              ; R7 = count - i
-        SUB     R7, R7, #1              ; R7 = count - i - 1
-        CMP     R8, R7
-        BGE     inner_done              ; If j >= count-i-1, inner loop done
-
-        ; ======================================================================
-        ; Calculate addresses of patients[j] and patients[j+1]
-        ; Address = base + (index * PATIENT_STRUCT_SIZE)
-        ; ======================================================================
-        ; Calculate patients[j] address
-        MOVW    R9, #PATIENT_STRUCT_SIZE ; MOVW for 16-bit immediate (412)
-        MUL     R10, R8, R9             ; R10 = j * PATIENT_STRUCT_SIZE
-        ADD     R10, R4, R10            ; R10 = &patients[j]
-
-        ; Calculate patients[j+1] address
-        ADD     R11, R8, #1             ; R11 = j + 1
-        MUL     R11, R11, R9            ; R11 = (j+1) * PATIENT_STRUCT_SIZE
-        ADD     R11, R4, R11            ; R11 = &patients[j+1]
-
-        ; ======================================================================
-        ; Compare alert_count values
-        ; if patients[j].alert_count < patients[j+1].alert_count, swap
-        ; ======================================================================
-        LDRB    R0, [R10, #ALERT_COUNT_OFF]  ; R0 = patients[j].alert_count
-        LDRB    R1, [R11, #ALERT_COUNT_OFF]  ; R1 = patients[j+1].alert_count
-
-        CMP     R0, R1                  ; Compare alert counts
-        BGE     no_swap                 ; If patients[j] >= patients[j+1], no swap
-
-        ; ======================================================================
-        ; Swap entire patient structures
-        ; Since Patient structure is large (412 bytes), we need to swap
-        ; word by word (using memcpy-like logic)
-        ; ======================================================================
-        PUSH    {R4-R6, R8}             ; Save loop variables
+        CMP     R7, R8
+        BGE     check_swapped
         
-        ; R10 = &patients[j]
-        ; R11 = &patients[j+1]
-        ; Swap 412 bytes using word-by-word copy
+        MOV     R9, R7
+        MOVW    R10, #PATIENT_SIZE
+        MUL     R9, R9, R10
+        ADD     R9, R4, R9
         
-        MOV     R0, R10                 ; R0 = source1 (&patients[j])
-        MOV     R1, R11                 ; R1 = source2 (&patients[j+1])
-        MOVW    R2, #PATIENT_STRUCT_SIZE ; R2 = bytes to swap (MOVW for 16-bit)
+        ADD     R10, R7, #1
+        MOVW    R11, #PATIENT_SIZE
+        MUL     R10, R10, R11
+        ADD     R10, R4, R10
         
-        ; Swap loop: swap 4 bytes at a time
-        ; Note: PATIENT_STRUCT_SIZE (412) is divisible by 4, so we process
-        ; exactly 103 words without any remainder bytes
+        LDRB    R0, [R9, #ALERT_COUNT_OFF]
+        LDRB    R1, [R10, #ALERT_COUNT_OFF]
+        
+        CMP     R0, R1
+        BGE     no_swap
+        
+        PUSH    {R4, R5}
+        
+        ; Swap 152 bytes = 38 words (CHANGED from 103)
+        MOVS    R2, #0
+        MOVW    R3, #38                 ; CHANGED from 103
+        
 swap_loop
-        CMP     R2, #0
-        BLE     swap_done
+        LDR     R4, [R9, R2]
+        LDR     R5, [R10, R2]
+        STR     R5, [R9, R2]
+        STR     R4, [R10, R2]
         
-        ; Load words from both structures
-        LDR     R3, [R0]                ; R3 = temp1 from patients[j]
-        LDR     R4, [R1]                ; R4 = temp2 from patients[j+1]
+        ADDS    R2, R2, #4
+        SUBS    R3, R3, #1
+        BNE     swap_loop
         
-        ; Store swapped values
-        STR     R4, [R0]                ; patients[j] word = patients[j+1] word
-        STR     R3, [R1]                ; patients[j+1] word = patients[j] word
+        POP     {R4, R5}
         
-        ; Move to next word
-        ADD     R0, R0, #4              ; Advance source1 pointer
-        ADD     R1, R1, #4              ; Advance source2 pointer
-        SUB     R2, R2, #4              ; Decrement byte counter
+        MOVS    R6, #1
         
-        B       swap_loop
-
-swap_done
-        POP     {R4-R6, R8}             ; Restore loop variables
-
 no_swap
-        ; ======================================================================
-        ; Increment inner loop counter and continue
-        ; ======================================================================
-        ADD     R8, R8, #1              ; j++
+        ADDS    R7, R7, #1
         B       inner_loop
-
-inner_done
-        ; ======================================================================
-        ; Increment outer loop counter and continue
-        ; ======================================================================
-        ADD     R6, R6, #1              ; i++
+        
+check_swapped
+        CMP     R6, #0
+        BEQ     sort_done
         B       outer_loop
-
+        
 sort_done
-        POP     {R4-R11, PC}            ; Restore registers and return
+        POP     {R4-R11, PC}
         ENDP
 
         ALIGN
