@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 9 - Sort Patients by Criticality
-; File: module9.s - OPTIMIZED: PATIENT_SIZE = 152
+; File: module9.s - FIXED: PATIENT_SIZE = 184
 ; ==============================================================================
 
         PRESERVE8
@@ -12,11 +12,11 @@
 ; ==============================================================================
 ; CONSTANTS
 ; ==============================================================================
-PATIENT_SIZE            EQU     152     ; CHANGED from 412
+PATIENT_SIZE            EQU     184     ; CHANGED from 152
 ALERT_COUNT_OFF         EQU     0x15
 
 ; ==============================================================================
-; FUNCTION:  sort_patients_by_criticality
+; FUNCTION:   sort_patients_by_criticality
 ; ==============================================================================
 sort_patients_by_criticality PROC
         PUSH    {R4-R11, LR}
@@ -54,9 +54,9 @@ inner_loop
         
         PUSH    {R4, R5}
         
-        ; Swap 152 bytes = 38 words (CHANGED from 103)
+        ; Swap 184 bytes = 46 words
         MOVS    R2, #0
-        MOVW    R3, #38                 ; CHANGED from 103
+        MOVW    R3, #46                 ; CHANGED from 38
         
 swap_loop
         LDR     R4, [R9, R2]
