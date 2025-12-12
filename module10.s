@@ -1,5 +1,5 @@
 ;===============================================================================
-; Module 10 - Patient Report Generator - FIXED
+; Module 10 - Patient Report Generator - FIXED:  PATIENT_SIZE=184
 ;===============================================================================
 
         THUMB
@@ -16,7 +16,7 @@ hdr3        DCB     "    SmartCare-32: Healthcare Monitoring System",0
 
 info_hdr    DCB     "PATIENT INFORMATION:",0
 divider     DCB     "--------------------------------------------------------------",0
-pid_str     DCB     "  Patient ID       :                     ",0
+pid_str     DCB     "  Patient ID       :                      ",0
 age_str     DCB     "  Age              :                     years",0
 ward_str    DCB     "  Ward Number      :                    ",0
 
@@ -36,16 +36,16 @@ bill_str    DCB     "  Total Bill       :  $                   USD",0
 
 end_rpt     DCB     "              End of Report",0
 
-pid_tmpl    DCB     "  Patient ID       :                     ",0
+pid_tmpl    DCB     "  Patient ID       :                      ",0
 age_tmpl    DCB     "  Age              :                     years",0
 ward_tmpl   DCB     "  Ward Number      :                    ",0
 hr_tmpl     DCB     "  Heart Rate       :                     bpm",0
 bp_tmpl     DCB     "  Blood Pressure   :           /         mmHg",0
 o2_tmpl     DCB     "  SpO2 (Oxygen)    :                     %",0
 alert_tmpl  DCB     "  Total Alerts     :                    ",0
-bill_tmpl   DCB     "  Total Bill       : $                   USD",0
+bill_tmpl   DCB     "  Total Bill       :  $                   USD",0
 
-        AREA    |. text|, CODE, READONLY
+        AREA    |.text|, CODE, READONLY
         EXPORT  Generate_Summary_Report
         EXPORT  Generate_All_Patient_Reports
         IMPORT  ITM_SendChar_C
@@ -54,13 +54,13 @@ bill_tmpl   DCB     "  Total Bill       : $                   USD",0
         IMPORT  Print_Error_Log
 
 ; CONSTANTS - FIXED
-PATIENT_SIZE    EQU     152         ; CHANGED from 412
+PATIENT_SIZE    EQU     184         ; CHANGED from 152
 PATIENT_ID_OFF  EQU     0x00
 AGE_OFF         EQU     0x08
 WARD_OFF        EQU     0x0A
 VITALS_OFF      EQU     0x18
 ALERT_CNT_OFF   EQU     0x15
-TOTAL_BILL_OFF  EQU     0x90        ; CHANGED from 0x194 (0x80 + 0x10)
+TOTAL_BILL_OFF  EQU     0xA4        ; CHANGED from 0x90 (0x94 + 0x10)
 
 Generate_All_Patient_Reports PROC
         B       Generate_Summary_Report
@@ -75,7 +75,7 @@ Generate_Summary_Report PROC
         
         LDR     r9, =patient_array
         MOVS    r10, #3
-        MOVS    r11, #152           ; Use literal value
+        MOVS    r11, #184           ; CHANGED from 152
         MOVS    r12, #0
         B       check_loop
 
@@ -83,7 +83,7 @@ print_patient
         BL      reset_templates
         
         MOV     r5, r12
-        MOV     r1, #152
+        MOV     r1, #184            ; CHANGED from 152
         MUL     r5, r5, r1
         ADD     r5, r5, r9
         
