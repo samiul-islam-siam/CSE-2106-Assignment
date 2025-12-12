@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 8 – Patient Bill Aggregator
-; File: module8.s - FIXED: BILLING_OFF = 0x80
+; File: module8.s - FIXED: BILLING_OFF = 0x94
 ; ==============================================================================
 
 		AREA    Module8_code, CODE, READONLY
@@ -9,7 +9,7 @@
         THUMB
 
 ; CONSTANTS - FIXED
-BILLING_OFF             EQU     0x80    ; CHANGED from 0x184
+BILLING_OFF             EQU     0x94    ; MOVED from 0x80
 TREATMENT_COST_OFF      EQU     0x00
 ROOM_COST_OFF           EQU     0x04
 MEDICINE_COST_OFF       EQU     0x08
