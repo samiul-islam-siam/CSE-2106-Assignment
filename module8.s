@@ -9,7 +9,7 @@
         EXPORT  aggregate_total_bill
 
 ; Billing offsets relative to billing start (from data.s)
-BILLING_OFF             EQU     0x184
+BILLING_OFF             EQU     0xE4
 TREATMENT_COST_OFF      EQU     0x00
 ROOM_COST_OFF           EQU     0x04
 MEDICINE_COST_OFF       EQU     0x08

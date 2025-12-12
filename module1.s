@@ -28,7 +28,7 @@ VITAL_BUFFER_INDEX_OFF  EQU     0x40
 ALERT_FLAG_OFF          EQU     0x41
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 ALERT_BUFFER_OFF        EQU     0x44
-BILLING_OFF             EQU     0x184
+BILLING_OFF             EQU     0xE4
 
 ; ==============================================================================
 ; FUNCTION: patient_record_initialization
@@ -97,7 +97,7 @@ zero_vitals
         ; Zero alert_buffer (320 bytes = 80 words)
         ; ======================================================================
         ADD     R2, R0, #ALERT_BUFFER_OFF
-        MOV     R1, #80
+        MOV     R1, #40
 zero_alerts
         STR     R3, [R2], #4
         SUBS    R1, R1, #1

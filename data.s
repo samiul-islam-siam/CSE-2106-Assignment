@@ -71,13 +71,13 @@ VITAL_COUNT     EQU     10		; Number of vital sign entries in buffer
 
 ; --- Alert record ---
 ALERT_SIZE      EQU     16		; Size of AlertRecord structure
-ALERT_COUNT     EQU     20		; Number of alert records in buffer
+ALERT_COUNT     EQU     10		; Number of alert records in buffer
 
 ; --- Billing ---
 BILLING_SIZE    EQU     24		; Size of Billing structure
 
 ; --- Patient structure offsets ---
-PATIENT_SIZE            EQU     412
+PATIENT_SIZE            EQU     252
 
 PATIENT_ID_OFF          EQU     0x00
 NAME_PTR_OFF            EQU     0x04
@@ -94,7 +94,7 @@ VITAL_BUFFER_INDEX_OFF  EQU     0x40
 ALERT_FLAG_OFF          EQU     0x41
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 ALERT_BUFFER_OFF        EQU     0x44
-BILLING_OFF             EQU     0x184
+BILLING_OFF             EQU     0xE4
 
 ; Billing structure offsets (relative to billing start):
 TREATMENT_COST_OFF      EQU     0x00
@@ -275,7 +275,7 @@ patient1
         DCB     0                       ; +0x42: dosage_due_flag
         DCB     0                       ; +0x43: padding
         ; +0x44: alert_buffer[20] - 320 bytes (20 x 16 bytes)
-        SPACE   320
+        SPACE   160
         ; +0x184: billing structure - 24 bytes
         DCD     0                       ; treatment_cost
         DCD     0                       ; room_cost
@@ -308,7 +308,7 @@ patient2
         DCB     0                       ; +0x42: dosage_due_flag
         DCB     0                       ; +0x43: padding
         ; +0x44: alert_buffer[20]
-        SPACE   320
+        SPACE   160
         ; +0x184: billing structure
         DCD     0                       ; treatment_cost
         DCD     0                       ; room_cost
@@ -341,7 +341,7 @@ patient3
         DCB     0                       ; +0x42: dosage_due_flag
         DCB     0                       ; +0x43: padding
         ; +0x44: alert_buffer[20]
-        SPACE   320
+        SPACE   160
         ; +0x184: billing structure
         DCD     0                       ; treatment_cost
         DCD     0                       ; room_cost
@@ -369,7 +369,7 @@ ERROR_MEMORY_OVERFLOW       EQU     0x03
 ; +0x0C: reserved patient_id (4 bytes)
 
 ERROR_RECORD_SIZE           EQU     16
-MAX_ERROR_RECORDS           EQU     50
+MAX_ERROR_RECORDS           EQU     20
 
 ; Global error flag
         ALIGN   4

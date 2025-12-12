@@ -37,7 +37,7 @@
 
         EXPORT  main                   ; Only export main
 
-PATIENT_SIZE            EQU     412
+PATIENT_SIZE            EQU     252
 PATIENT_ID_OFF          EQU     0x00
 ALERT_COUNT_OFF         EQU     0x15
 
@@ -198,7 +198,7 @@ main    PROC
         ADD     R0, R0, R10
         BL      aggregate_total_bill
         MOVW    R11, #0x0010
-                ; ======================================================================
+        ; ======================================================================
         ; Vitals for Patient 1 (Acquire 10 times to build sensor history)
         ; ======================================================================
         MOVS    R12, #0                 ; Loop counter for 10 readings

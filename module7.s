@@ -18,7 +18,7 @@ MEDICINE_SIZE          EQU     0x10   ; 16 bytes total
 MEDICINE_LIST_PTR_OFF   EQU     0x10
 MEDICINE_COUNT_OFF      EQU     0x14
 STAY_DAYS_OFF           EQU     0x16
-BILLING_OFF             EQU     0x184
+BILLING_OFF             EQU     0xE4
 MEDICINE_COST_OFF       EQU     0x08   ; (relative to billing start)
 
         EXPORT  medicine_billing_module

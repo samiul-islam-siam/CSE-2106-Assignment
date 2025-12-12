@@ -77,7 +77,7 @@ ERROR_INVALID_DOSAGE        EQU     0x02
 ERROR_MEMORY_OVERFLOW       EQU     0x03
 
 ERROR_RECORD_SIZE           EQU     16
-MAX_ERROR_RECORDS           EQU     50
+MAX_ERROR_RECORDS           EQU     20
 
 MEDICINE_LIST_PTR_OFF       EQU     0x10
 MEDICINE_COUNT_OFF          EQU     0x14
@@ -86,7 +86,7 @@ QUANTITY_OFF                EQU     0x0C
 MEDICINE_SIZE               EQU     0x10
 
 PATIENT_ARRAY_MAX           EQU     0x20000100
-BILLING_OFF                 EQU     0x184
+BILLING_OFF                 EQU     0xE4
 TOTAL_BILL_OFF              EQU     0x10
 PATIENT_ID_OFF              EQU     0x00
 
@@ -351,7 +351,7 @@ log_error_to_flash PROC
         STR     R7, [R8, #8]
         
         LDR     R2, =patient_array
-        MOV     R3, #412
+        MOV     R3, #252
         MUL     R3, R5, R3
         ADD     R2, R2, R3
         LDR     R2, [R2, #PATIENT_ID_OFF]

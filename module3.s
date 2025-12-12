@@ -18,7 +18,7 @@ ALERT_BUFFER_OFF        EQU     0x44
 
 ; Alert record and limits
 ALERT_RECORD_SIZE       EQU     16
-ALERT_BUFFER_MAX        EQU     20      ; as per C code: alert_buffer[20]
+ALERT_BUFFER_MAX        EQU     10      ; as per C code: alert_buffer[20]
 
 
         

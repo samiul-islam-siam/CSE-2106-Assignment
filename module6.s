@@ -9,7 +9,7 @@
         EXPORT  compute_room_cost
 
 ; Offsets from data.s (Patient structure)
-BILLING_OFF             EQU     0x184
+BILLING_OFF             EQU     0xE4
 ROOM_DAILY_RATE_OFF     EQU     0x0C
 STAY_DAYS_OFF           EQU     0x16
 ROOM_COST_OFF           EQU     0x04

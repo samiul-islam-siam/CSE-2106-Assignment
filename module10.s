@@ -67,13 +67,13 @@ bill_tmpl   DCB     "  Total Bill       : $                   USD",0
         IMPORT  patient_array
         IMPORT  Print_Error_Log
 
-PATIENT_SIZE    EQU     412
+PATIENT_SIZE    EQU     252
 PATIENT_ID_OFF  EQU     0x00
 AGE_OFF         EQU     0x08
 WARD_OFF        EQU     0x0A
 VITALS_OFF      EQU     0x18
 ALERT_CNT_OFF   EQU     0x15
-TOTAL_BILL_OFF  EQU     0x194
+TOTAL_BILL_OFF  EQU     0xF4
 
 ;===============================================================================
 ; Alias function - both names point to same implementation
