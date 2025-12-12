@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32:  Module 5 - Treatment Cost Computation
-; File: module5.s - FIXED:  BILLING_OFF = 0x80
+; File: module5.s - FIXED: BILLING_OFF = 0x94
 ; ==============================================================================
 
         PRESERVE8
@@ -19,7 +19,7 @@
 ; CONSTANTS - FIXED
 ; ==============================================================================
 TREATMENT_CODE_OFF      EQU     0x09
-BILLING_OFF             EQU     0x80    ; CHANGED from 0x184
+BILLING_OFF             EQU     0x94    ; MOVED from 0x80
 TREATMENT_COST_OFF      EQU     0x00
 
 ; ==============================================================================
