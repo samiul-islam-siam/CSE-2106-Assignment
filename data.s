@@ -1,8 +1,7 @@
-; ==============================================================================
-; SmartCare-32: Healthcare Monitoring & Billing System
-; File: data.s - Data Sections, Structures, and Constants
-; ARM Cortex-M4 Assembly for Keil uVision
-; ==============================================================================
+; ================================================================================
+; SmartCare-32: ARM-Based Healthcare Monitoring & Billing System
+; File: data.s - FIXED:  Preserve lab_test_cost initialization
+; ================================================================================
 	
         AREA    PatientData, DATA, READWRITE
         ALIGN   4
@@ -26,59 +25,27 @@
 		EXPORT	medicine_list_p2
 		EXPORT	medicine_list_p3
 
-; ================================================================================
+; =================================================================================
 ; STRUCTURE CONSTANTS
-; ================================================================================
-
-; Medicine structure Layout (byte offsets):
-; +0x00: medicine_id (1 bytes)
-; +0x01: dosage_interval_hours (1 bytes)
-; +0x04: last_administered_time (4 byte)
-; +0x08: unit_price (4 byte)
-; +0x0C: quantity (2 bytes)
-; Total: 0x10 = 16 bytes per medicine
+; =================================================================================
 
 MED_ID_OFF             EQU 0x00
 DOSAGE_INTERVAL_OFF    EQU 0x01
-LAST_ADMIN_TIME_OFF    EQU 0x04   ; 4-byte aligned
-UNIT_PRICE_OFF         EQU 0x08   ; 4-byte aligned
+LAST_ADMIN_TIME_OFF    EQU 0x04
+UNIT_PRICE_OFF         EQU 0x08
 QUANTITY_OFF           EQU 0x0C
 MED_PADDING_OFF        EQU 0x0E
-MEDICINE_SIZE          EQU 0x10   ; 16 bytes total
+MEDICINE_SIZE          EQU 0x10
 
-; Patient Structure Layout (byte offsets):
-; +0x00: patient_id (4 bytes)
-; +0x04: name_ptr (4 bytes)
-; +0x08: age (1 byte)
-; +0x09: treatment_code (1 byte)
-; +0x0A: ward_number (2 bytes)
-; +0x0C: room_daily_rate (4 bytes)
-; +0x10: medicine_list_ptr (4 bytes)
-; +0x14: medicine_count (1 byte)
-; +0x15: alert_count (1 byte)
-; +0x16: stay_days (2 bytes)
-; +0x18: vital_buffer[10] (40 bytes) - 10 * 4 bytes per VitalSign
-; +0x40: vital_buffer_index (1 byte)
-; +0x41: alert_flag (1 byte)
-; +0x42: dosage_due_flag (1 byte)
-; +0x43: padding (1 byte)
-; +0x44: alert_buffer[20] (320 bytes) - 20 * 16 bytes per AlertRecord
-; +0x184: billing structure (24 bytes)
-; Total: 0x19C = 412 bytes per patient
+VITAL_SIZE      EQU     4
+VITAL_COUNT     EQU     10
 
-; --- Vital sign ---
-VITAL_SIZE      EQU     4		; Size of VitalSign structure (4 bytes)
-VITAL_COUNT     EQU     10		; Number of vital sign entries in buffer
+ALERT_SIZE      EQU     12
+ALERT_COUNT     EQU     5
 
-; --- Alert record ---
-ALERT_SIZE      EQU     16		; Size of AlertRecord structure
-ALERT_COUNT     EQU     20		; Number of alert records in buffer
+BILLING_SIZE    EQU     24
 
-; --- Billing ---
-BILLING_SIZE    EQU     24		; Size of Billing structure
-
-; --- Patient structure offsets ---
-PATIENT_SIZE            EQU     412
+PATIENT_SIZE            EQU     152
 
 PATIENT_ID_OFF          EQU     0x00
 NAME_PTR_OFF            EQU     0x04
@@ -95,9 +62,8 @@ VITAL_BUFFER_INDEX_OFF  EQU     0x40
 ALERT_FLAG_OFF          EQU     0x41
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 ALERT_BUFFER_OFF        EQU     0x44
-BILLING_OFF             EQU     0x184
+BILLING_OFF             EQU     0x80
 
-; Billing structure offsets (relative to billing start):
 TREATMENT_COST_OFF      EQU     0x00
 ROOM_COST_OFF           EQU     0x04
 MEDICINE_COST_OFF       EQU     0x08
@@ -110,26 +76,26 @@ OVERFLOW_FLAG_OFF       EQU     0x14
 ; SIMULATED SENSOR MEMORY ADDRESSES
 ; ==============================================================================
         ALIGN   4
-SENSOR_HR       SPACE   1			; Heart Rate sensor (0-255 bpm)
+SENSOR_HR       SPACE   1
         ALIGN   4
-SENSOR_O2       SPACE   1			; Oxygen saturation (0-100%)
+SENSOR_O2       SPACE   1
         ALIGN   4
-SENSOR_SBP      SPACE   1			; Systolic Blood Pressure
+SENSOR_SBP      SPACE   1
         ALIGN   4
-SENSOR_DBP      SPACE   1			; Diastolic Blood Pressure
+SENSOR_DBP      SPACE   1
         ALIGN   4
 
 
 ; ==============================================================================
 ; SYSTEM CLOCK COUNTER
 ; ==============================================================================
-system_clock    DCD     0			; Global system clock counter
+system_clock    DCD     0
 
 
 ; ==============================================================================
 ; PATIENT COUNT
 ; ==============================================================================
-patient_count   DCD     3			; Number of patients in system
+patient_count   DCD     3
 
 
 ; ==============================================================================
@@ -137,22 +103,22 @@ patient_count   DCD     3			; Number of patients in system
 ; ==============================================================================
         ALIGN   4
 treatment_cost_table
-        DCD     5000                    ; Code 0: Basic checkup
-        DCD     15000                   ; Code 1: Minor surgery
-        DCD     50000                   ; Code 2: Major surgery
-        DCD     8000                    ; Code 3: Diagnostic tests
-        DCD     12000                   ; Code 4: Physical therapy
-        DCD     25000                   ; Code 5: ICU admission
-        DCD     30000                   ; Code 6: Emergency care
-        DCD     10000                   ; Code 7: Consultation
-        DCD     20000                   ; Code 8: Imaging
-        DCD     18000                   ; Code 9: Laboratory
-        DCD     22000                   ; Code 10: Cardiology
-        DCD     27000                   ; Code 11: Neurology
-        DCD     16000                   ; Code 12: Orthopedics
-        DCD     14000                   ; Code 13: Pediatrics
-        DCD     19000                   ; Code 14: Oncology
-        DCD     21000                   ; Code 15: Radiology
+        DCD     5000
+        DCD     15000
+        DCD     50000
+        DCD     8000
+        DCD     12000
+        DCD     25000
+        DCD     30000
+        DCD     10000
+        DCD     20000
+        DCD     18000
+        DCD     22000
+        DCD     27000
+        DCD     16000
+        DCD     14000
+        DCD     19000
+        DCD     21000
 
 
 ; ==============================================================================
@@ -168,187 +134,184 @@ patient3_name   DCB     "Bob Wilson",0
 
 
 ; ==============================================================================
-; MEDICINE LISTS: every entry = 16 bytes with padding
+; MEDICINE LISTS
 ; ==============================================================================
-
-; -------------------------------
-; Patient 1 Medicines (3 items = 48 bytes)
-; -------------------------------
         ALIGN 4
 medicine_list_p1
+		DCB 1
+        DCB 6
+        DCB 0,0
+        DCD 0
+		DCD 50
+		DCW 10
+        DCB 0,0
 
-; Medicine 1
-		DCB 1                  	; +0x00: medicine_id
-        DCB 6                  	; +0x01: dosage_interval
-        DCB 0,0                	; padding for alignment
-        DCD 0                  	; +0x04: last_administered_time
-		DCD 50                 	; +0x08: unit_price
-		DCW 10                 	; +0x0C: quantity
-        DCB 0,0                	; +0x0E: padding
+        DCB 2
+        DCB 8
+        DCB 0,0
+        DCD 0
+        DCD 120
+        DCW 5
+        DCB 0,0
 
-; Medicine 2
-        DCB 2				   	; +0x00: medicine_id
-        DCB 8					; +0x01: dosage_interval
-        DCB 0,0					; padding for alignment
-        DCD 0					; +0x04: last_administered_time
-        DCD 120					; +0x08: unit_price
-        DCW 5					; +0x0C: quantity
-        DCB 0,0					; +0x0E: padding
-
-; Medicine 3
-        DCB 3									; +0x00: medicine_id
-        DCB 12                                  ; +0x01: dosage_interval                           
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 200                                 ; +0x08: unit_price
-        DCW 3                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 3
+        DCB 12
+        DCB 0,0
+        DCD 0
+        DCD 200
+        DCW 3
+        DCB 0,0
 
 
-
-; -------------------------------
-; Patient 2 Medicines (2 items = 32 bytes)
-; -------------------------------
         ALIGN 4
 medicine_list_p2
+        DCB 4
+        DCB 4
+        DCB 0,0
+        DCD 0
+        DCD 80
+        DCW 8
+        DCB 0,0
 
-; Medicine 1
-        DCB 4									; +0x00: medicine_id
-        DCB 4                                   ; +0x01: dosage_interval
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 80                                  ; +0x08: unit_price
-        DCW 8                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
-
-; Medicine 2
-        DCB 5									; +0x00: medicine_id
-        DCB 6                                   ; +0x01: dosage_interval
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 150                                 ; +0x08: unit_price
-        DCW 4                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 5
+        DCB 6
+        DCB 0,0
+        DCD 0
+        DCD 150
+        DCW 4
+        DCB 0,0
 
 
-; -------------------------------
-; Patient 3 Medicines (1 item = 16 bytes)
-; -------------------------------
         ALIGN 4
 medicine_list_p3
-
-        DCB 6									; +0x00: medicine_id
-        DCB 24                                  ; +0x01: dosage_interval
-        DCB 0,0                                 ; padding for alignment
-        DCD 0                                   ; +0x04: last_administered_time
-        DCD 300                                 ; +0x08: unit_price
-        DCW 2                                   ; +0x0C: quantity
-        DCB 0,0                                 ; +0x0E: padding
+        DCB 6
+        DCB 24
+        DCB 0,0
+        DCD 0
+        DCD 300
+        DCW 2
+        DCB 0,0
 
 
 ; ==============================================================================
-; PATIENT ARRAY - 3 Patients
-; Each patient is 412 bytes
+; PATIENT ARRAY - 152 bytes each
 ; ==============================================================================
         ALIGN   4
 patient_array
 
 ; ------------------------------------------------------------------------------
 ; Patient 1: John Doe
-; Treatment code: 5 (ICU admission)
-; Alert count: 2 (simulating critical patient)
 ; ------------------------------------------------------------------------------
 patient1
         DCD     1001                    ; +0x00: patient_id
         DCD     patient1_name           ; +0x04: name_ptr
         DCB     45                      ; +0x08: age
-        DCB     5                       ; +0x09: treatment_code (ICU admission)
+        DCB     5                       ; +0x09: treatment_code
         DCW     101                     ; +0x0A: ward_number
         DCD     2000                    ; +0x0C: room_daily_rate
         DCD     medicine_list_p1        ; +0x10: medicine_list_ptr
         DCB     3                       ; +0x14: medicine_count
-        DCB     2                       ; +0x15: alert_count (HIGH - critical)
+        DCB     2                       ; +0x15: alert_count
         DCW     7                       ; +0x16: stay_days
-        ; +0x18: vital_buffer[10] - 40 bytes (10 x 4 bytes)
-        SPACE   40                      
-        DCB     0                       ; +0x40: vital_buffer_index
-        DCB     0                       ; +0x41: alert_flag
-        DCB     0                       ; +0x42: dosage_due_flag
-        DCB     0                       ; +0x43: padding
-        ; +0x44: alert_buffer[20] - 320 bytes (20 x 16 bytes)
-        SPACE   320
-        ; +0x184: billing structure - 24 bytes
-        DCD     0                       ; treatment_cost
-        DCD     0                       ; room_cost
-        DCD     0                       ; medicine_cost
-        DCD     3000                    ; lab_test_cost
-        DCD     0                       ; total_bill
-        DCD     0                       ; overflow_flag + padding
+        ; +0x18: vital_buffer[10] = 40 bytes
+        SPACE   40
+        ; +0x40: vital_buffer_index, alert_flag, dosage_due_flag, padding
+        DCB     0,0,0,0
+        ; +0x44: alert_buffer[5] = 60 bytes
+        SPACE   60
+        ; +0x80:  Billing (24 bytes)
+        DCD     0                       ; +0x80: treatment_cost
+        DCD     0                       ; +0x84: room_cost
+        DCD     0                       ; +0x88: medicine_cost
+        DCD     3000                    ; +0x8C: lab_test_cost ? KEEP THIS
+        DCD     0                       ; +0x90: total_bill
+        DCD     0                       ; +0x94: overflow_flag
 
 
 ; ------------------------------------------------------------------------------
 ; Patient 2: Jane Smith
-; Treatment code: 2 (Major surgery)
-; Alert count: 0 (stable patient)
 ; ------------------------------------------------------------------------------
 patient2
-        DCD     1002                    ; +0x00: patient_id
-        DCD     patient2_name           ; +0x04: name_ptr
-        DCB     32                      ; +0x08: age
-        DCB     2                       ; +0x09: treatment_code (Major surgery)
-        DCW     102                     ; +0x0A: ward_number
-        DCD     5000                    ; +0x0C: room_daily_rate
-        DCD     medicine_list_p2        ; +0x10: medicine_list_ptr
-        DCB     2                       ; +0x14: medicine_count
-        DCB     0                       ; +0x15: alert_count (LOW - stable)
-        DCW     12                      ; +0x16: stay_days
-        ; +0x18: vital_buffer[10]
+        DCD     1002
+        DCD     patient2_name
+        DCB     32
+        DCB     2
+        DCW     102
+        DCD     5000
+        DCD     medicine_list_p2
+        DCB     2
+        DCB     0
+        DCW     12
         SPACE   40
-        DCB     0                       ; +0x40: vital_buffer_index
-        DCB     0                       ; +0x41: alert_flag
-        DCB     0                       ; +0x42: dosage_due_flag
-        DCB     0                       ; +0x43: padding
-        ; +0x44: alert_buffer[20]
-        SPACE   320
-        ; +0x184: billing structure
-        DCD     0                       ; treatment_cost
-        DCD     0                       ; room_cost
-        DCD     0                       ; medicine_cost
-        DCD     8000                    ; lab_test_cost
-        DCD     0                       ; total_bill
-        DCD     0                       ; overflow_flag + padding
+        DCB     0,0,0,0
+        SPACE   60
+        DCD     0
+        DCD     0
+        DCD     0
+        DCD     8000                    ; lab_test_cost ? KEEP THIS
+        DCD     0
+        DCD     0
 
 
 ; ------------------------------------------------------------------------------
 ; Patient 3: Bob Wilson
-; Treatment code: 6 (Emergency care)
-; Alert count: 5 (most critical patient)
 ; ------------------------------------------------------------------------------
 patient3
-        DCD     1003                    ; +0x00: patient_id
-        DCD     patient3_name           ; +0x04: name_ptr
-        DCB     67                      ; +0x08: age
-        DCB     6                       ; +0x09: treatment_code (Emergency care)
-        DCW     201                     ; +0x0A: ward_number
-        DCD     3000                    ; +0x0C: room_daily_rate
-        DCD     medicine_list_p3        ; +0x10: medicine_list_ptr
-        DCB     1                       ; +0x14: medicine_count
-        DCB     5                       ; +0x15: alert_count (HIGHEST - most critical)
-        DCW     5                       ; +0x16: stay_days
-        ; +0x18: vital_buffer[10]
+        DCD     1003
+        DCD     patient3_name
+        DCB     67
+        DCB     6
+        DCW     201
+        DCD     3000
+        DCD     medicine_list_p3
+        DCB     1
+        DCB     5
+        DCW     5
         SPACE   40
-        DCB     0                       ; +0x40: vital_buffer_index
-        DCB     0                       ; +0x41: alert_flag
-        DCB     0                       ; +0x42: dosage_due_flag
-        DCB     0                       ; +0x43: padding
-        ; +0x44: alert_buffer[20]
-        SPACE   320
-        ; +0x184: billing structure
-        DCD     0                       ; treatment_cost
-        DCD     0                       ; room_cost
-        DCD     0                       ; medicine_cost
-        DCD     2500                    ; lab_test_cost
-        DCD     0                       ; total_bill
-        DCD     0                       ; overflow_flag + padding
+        DCB     0,0,0,0
+        SPACE   60
+        DCD     0
+        DCD     0
+        DCD     0
+        DCD     2500                    ; lab_test_cost ? KEEP THIS
+        DCD     0
+        DCD     0
+
+; ==============================================================================
+; MODULE 11: ERROR DETECTION DATA STRUCTURES
+; ==============================================================================
+
+ERROR_SENSOR_MALFUNCTION    EQU     0x01
+ERROR_INVALID_DOSAGE        EQU     0x02
+ERROR_MEMORY_OVERFLOW       EQU     0x03
+
+ERROR_RECORD_SIZE           EQU     16
+MAX_ERROR_RECORDS           EQU     50
+
+        ALIGN   4
+error_flag      DCD     0
+
+        ALIGN   4
+error_log_buffer
+        SPACE   (ERROR_RECORD_SIZE * MAX_ERROR_RECORDS)
+
+        ALIGN   4
+error_count     DCD     0
+
+        ALIGN   4
+sensor_history
+hr_history      SPACE   10
+o2_history      SPACE   10
+sbp_history     SPACE   10
+dbp_history     SPACE   10
+
+sensor_history_index    DCB     0
+        ALIGN   4
+
+        EXPORT  error_flag
+        EXPORT  error_log_buffer
+        EXPORT  error_count
+        EXPORT  sensor_history
+        EXPORT  sensor_history_index
 
         END
