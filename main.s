@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module Integration
-; File: main.s - FIXED:  Billing offset issue
+; File: main. s - FIXED:  PATIENT_SIZE=184
 ; ==============================================================================
 
         PRESERVE8
@@ -35,7 +35,7 @@
 
         EXPORT  main
 
-PATIENT_SIZE            EQU     152
+PATIENT_SIZE            EQU     184     ; CHANGED from 152
 PATIENT_ID_OFF          EQU     0x00
 ALERT_COUNT_OFF         EQU     0x15
 
@@ -105,7 +105,7 @@ main    PROC
         PUSH    {R0}                    ; ward
         
         LDR     R0, =patient_array
-        MOV     R10, #152              ; Use literal value
+        MOV     R10, #184              ; CHANGED from 152
         ADD     R0, R0, R10
         MOVW    R1, #1002
         LDR     R2, =patient2_name
@@ -116,25 +116,25 @@ main    PROC
         MOVW    R11, #0x0007
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      compute_treatment_cost
         MOVW    R11, #0x0008
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      compute_room_cost
         MOVW    R11, #0x0009
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      medicine_billing_module
         MOVW    R11, #0x000A
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      aggregate_total_bill
         MOVW    R11, #0x000B
@@ -156,7 +156,7 @@ main    PROC
         PUSH    {R0}                    ; ward
         
         LDR     R0, =patient_array
-        MOV     R10, #304              ; 152 * 2
+        MOV     R10, #368              ; CHANGED from 304 (184 * 2)
         ADD     R0, R0, R10
         MOVW    R1, #1003
         LDR     R2, =patient3_name
@@ -167,25 +167,25 @@ main    PROC
         MOVW    R11, #0x000C
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      compute_treatment_cost
         MOVW    R11, #0x000D
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      compute_room_cost
         MOVW    R11, #0x000E
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      medicine_billing_module
         MOVW    R11, #0x000F
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      aggregate_total_bill
         MOVW    R11, #0x0010
@@ -256,7 +256,7 @@ vitals_loop_p1
         STRB    R1, [R0]
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         MOVW    R11, #0x0014
@@ -265,19 +265,19 @@ vitals_loop_p1
         BL      check_sensor_malfunction
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      check_vital_thresholds
         MOVW    R11, #0x0015
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
         MOVW    R11, #0x0016
 		
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         MOV     R1, #1
         BL      check_invalid_dosage
@@ -300,7 +300,7 @@ vitals_loop_p1
         STRB    R1, [R0]
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      acquire_vital_signs
         MOVW    R11, #0x0017
@@ -309,19 +309,19 @@ vitals_loop_p1
         BL      check_sensor_malfunction
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      check_vital_thresholds
         MOVW    R11, #0x0018
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         BL      medicine_administration_scheduler
         MOVW    R11, #0x0019
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         MOV     R1, #2
         BL      check_invalid_dosage
@@ -335,20 +335,20 @@ vitals_loop_p1
         BL      check_memory_overflow
         
         LDR     R0, =patient_array
-        MOV     R10, #152
+        MOV     R10, #184
         ADD     R0, R0, R10
         MOV     R1, #1
         BL      check_memory_overflow
         
         LDR     R0, =patient_array
-        MOV     R10, #304
+        MOV     R10, #368
         ADD     R0, R0, R10
         MOV     R1, #2
         BL      check_memory_overflow
         MOVW    R11, #0x0023
 		
         ; ======================================================================
-        ; Module 9: Sort patients
+        ; Module 9:  Sort patients
         ; ======================================================================
         LDR     R0, =patient_array
         MOV     R1, #3
