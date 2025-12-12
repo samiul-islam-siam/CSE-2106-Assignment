@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 1 - Patient Record Initialization
-; File: module1.s - FIXED: Don't overwrite lab_test_cost from data. s
+; File: module1.s - FIXED:  BILLING_OFF=0x94, zero 80-byte alert buffer
 ; ==============================================================================
 
         PRESERVE8
@@ -28,7 +28,7 @@ VITAL_BUFFER_INDEX_OFF  EQU     0x40
 ALERT_FLAG_OFF          EQU     0x41
 DOSAGE_DUE_FLAG_OFF     EQU     0x42
 ALERT_BUFFER_OFF        EQU     0x44
-BILLING_OFF             EQU     0x80
+BILLING_OFF             EQU     0x94    ; MOVED from 0x80
 
 ; Billing offsets
 TREATMENT_COST_OFF      EQU     0x00
@@ -38,7 +38,7 @@ LAB_TEST_COST_OFF       EQU     0x0C
 TOTAL_BILL_OFF          EQU     0x10
 
 ; ==============================================================================
-; FUNCTION:  patient_record_initialization
+; FUNCTION:   patient_record_initialization
 ; ==============================================================================
 patient_record_initialization PROC
         PUSH    {R4-R7, LR}
@@ -84,7 +84,7 @@ patient_record_initialization PROC
         STR     R3, [R2, #TREATMENT_COST_OFF]   ; Zero treatment_cost
         STR     R3, [R2, #ROOM_COST_OFF]        ; Zero room_cost
         STR     R3, [R2, #MEDICINE_COST_OFF]    ; Zero medicine_cost
-        ; SKIP:  lab_test_cost (preserve from data.s)
+        ; SKIP:   lab_test_cost (preserve from data.s)
         STR     R3, [R2, #TOTAL_BILL_OFF]       ; Zero total_bill
         STR     R3, [R2, #TOTAL_BILL_OFF+4]     ; Zero overflow_flag
         
@@ -99,10 +99,10 @@ zero_vitals
         BNE     zero_vitals
         
         ; ======================================================================
-        ; Zero alert_buffer (60 bytes = 15 words)
+        ; Zero alert_buffer (80 bytes = 20 words)
         ; ======================================================================
         ADD     R2, R0, #ALERT_BUFFER_OFF
-        MOV     R1, #15
+        MOV     R1, #20             ; CHANGED from 15
 zero_alerts
         STR     R3, [R2], #4
         SUBS    R1, R1, #1
