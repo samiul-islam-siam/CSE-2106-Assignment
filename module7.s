@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 7 – Medicine Billing Module
-; File: module7.s - FIXED: BILLING_OFF = 0x80
+; File: module7.s - FIXED: BILLING_OFF = 0x94
 ; ==============================================================================
 
 		AREA    Module7_code, CODE, READONLY
@@ -18,7 +18,7 @@ MEDICINE_SIZE          EQU     0x10
 MEDICINE_LIST_PTR_OFF   EQU     0x10
 MEDICINE_COUNT_OFF      EQU     0x14
 STAY_DAYS_OFF           EQU     0x16
-BILLING_OFF             EQU     0x80    ; CHANGED from 0x184
+BILLING_OFF             EQU     0x94    ; MOVED from 0x80
 MEDICINE_COST_OFF       EQU     0x08
 
         EXPORT  medicine_billing_module
