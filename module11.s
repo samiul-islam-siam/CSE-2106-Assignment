@@ -86,7 +86,7 @@ QUANTITY_OFF                EQU     0x0C
 MEDICINE_SIZE               EQU     0x10
 
 PATIENT_ARRAY_MAX           EQU     0x20000100
-BILLING_OFF                 EQU     0x184
+BILLING_OFF                 EQU     0x94
 TOTAL_BILL_OFF              EQU     0x10
 PATIENT_ID_OFF              EQU     0x00
 
