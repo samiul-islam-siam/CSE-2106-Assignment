@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; SmartCare-32: Module 3 – Vital Threshold Alert Module
-; File: module3.s - OPTIMIZED: 5 alerts max, 12-byte records
+; File: module3.s - FIXED: 16-byte alert records, max 5 alerts
 ; ==============================================================================
 
 		AREA    Module3_code, CODE, READONLY
@@ -16,16 +16,17 @@ ALERT_COUNT_OFF         EQU     0x15
 ALERT_FLAG_OFF          EQU     0x41
 ALERT_BUFFER_OFF        EQU     0x44
 
-; Alert record - OPTIMIZED
-ALERT_RECORD_SIZE       EQU     12      ; CHANGED from 16
-ALERT_BUFFER_MAX        EQU     5       ; CHANGED from 20
+; Alert record - FIXED to 16 bytes, max 5 alerts
+ALERT_RECORD_SIZE       EQU     16      ; CHANGED from 12
+ALERT_BUFFER_MAX        EQU     5       ; Keep 5 alerts
 
-; Alert record structure (12 bytes):
+; Alert record structure (16 bytes):
 ; +0x00: vital_type (1 byte)
 ; +0x01: actual_reading (1 byte)
 ; +0x02: reserved (2 bytes)
 ; +0x04: timestamp (4 bytes)
 ; +0x08: reserved (4 bytes)
+; +0x0C: reserved (4 bytes)
 
 check_vital_thresholds
         PUSH    {LR}
@@ -95,7 +96,7 @@ done_checks
         POP     {PC}
 
 ; ---------------------------------------------------------
-; create_alert_record - OPTIMIZED (12-byte records, max 5)
+; create_alert_record - FIXED (16-byte records, max 5)
 ; ---------------------------------------------------------
 create_alert_record
         ; Set alert flag
@@ -105,23 +106,23 @@ create_alert_record
         ; Load alert_count
         LDRB    R11, [R0, #ALERT_COUNT_OFF]
 
-        ; Cap at 5 alerts - CHANGED
+        ; Cap at 5 alerts
         CMP     R11, #ALERT_BUFFER_MAX
         BCS     ret_from_create
 
-        ; Calculate record address:  base + alert_count * 12
+        ; Calculate record address:  base + alert_count * 16
+        ; FIXED: Simple shift left by 4 for ×16
         MOV     R12, R11
-        LSL     R1, R12, #2             ; * 4
-        ADD     R2, R1, R12, LSL #1     ; + * 2 = * 6
-        LSL     R2, R2, #1              ; * 2 = * 12
+        LSL     R2, R12, #4             ; alert_count * 16
         ADD     R2, R2, #ALERT_BUFFER_OFF
         ADD     R12, R0, R2
 
-        ; Zero 12 bytes (3 words)
+        ; Zero 16 bytes (4 words) - FIXED
         MOVS    R1, #0
         STR     R1, [R12, #0]
         STR     R1, [R12, #4]
         STR     R1, [R12, #8]
+        STR     R1, [R12, #12]          ; ADDED
 
         ; Store data
         STRB    R9, [R12, #0]           ; vital_type
