@@ -3,7 +3,7 @@
 ;===============================================================================
 
         THUMB
-        AREA    Module10_code, DATA, READWRITE
+        AREA    Module10_data, DATA, READWRITE
 
 ; Utility buffers
 nl          DCB     0x0A,0
@@ -59,11 +59,12 @@ o2_tmpl     DCB     "  SpO2 (Oxygen)    :                     %",0
 alert_tmpl  DCB     "  Total Alerts     :                    ",0
 bill_tmpl   DCB     "  Total Bill       : $                   USD",0
 
-        AREA    |.text|, CODE, READONLY
+
+        AREA    Module10_Code, CODE, READONLY
         EXPORT  Generate_Summary_Report
         EXPORT  Generate_All_Patient_Reports
-        IMPORT  ITM_SendChar_C
-        IMPORT  ITM_Init_C
+        IMPORT  ITM_SendChar
+        IMPORT  ITM_Init
         IMPORT  patient_array
         IMPORT  Print_Error_Log
 
@@ -90,7 +91,7 @@ Generate_Summary_Report PROC
         PUSH    {r9-r11}
         
         ; Initialize ITM
-        BL      ITM_Init_C
+        BL      ITM_Init
         
         ; Print error log FIRST
         BL      Print_Error_Log
@@ -506,7 +507,7 @@ loop_pbs
         BEQ     done_pbs
         MOV     r4, r0
         MOV     r0, r1
-        BL      ITM_SendChar_C
+        BL      ITM_SendChar
         MOV     r0, r4
         ADD     r0, r0, #1
         B       loop_pbs

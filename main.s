@@ -16,7 +16,7 @@
         IMPORT  medicine_billing_module
         IMPORT  aggregate_total_bill
         IMPORT  sort_patients_by_criticality
-        IMPORT  patient_array              ; IMPORT, not EXPORT
+        IMPORT  patient_array              
         IMPORT  patient1_name
         IMPORT  patient2_name
         IMPORT  patient3_name
@@ -275,8 +275,7 @@ vitals_loop_p1
 		
 		; MODULE 11a: Check sensor malfunction (Patient 0)
         MOV     R0, #1                  ; patient index 0
-        BL      check_sensor_malfunction
-        ;MOVW    R11, #0x0020   
+        BL      check_sensor_malfunction  
         
         
         LDR     R0, =patient_array
@@ -381,7 +380,7 @@ vitals_loop_p1
         
         ; ======================================================================
         ; MODULE 10: Generate UART Summary Reports
-        ; Calls module10.s which bridges to main.c
+        ; Calls module10.s
         ; ======================================================================
         MOVW    R11, #0x001B          ; Module 10 start marker
         

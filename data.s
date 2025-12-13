@@ -61,22 +61,22 @@ MEDICINE_SIZE          EQU 0x10   ; 16 bytes total
 ; +0x41: alert_flag (1 byte)
 ; +0x42: dosage_due_flag (1 byte)
 ; +0x43: padding (1 byte)
-; +0x44: alert_buffer[20] (320 bytes) - 20 * 16 bytes per AlertRecord
+; +0x44: alert_buffer[10] (160 bytes) - 10 * (16 bytes per AlertRecord)
 ; +0x184: billing structure (24 bytes)
-; Total: 0x19C = 412 bytes per patient
+; Total: 0xFC = 252 bytes per patient
 
-; --- Vital sign ---
-VITAL_SIZE      EQU     4		; Size of VitalSign structure (4 bytes)
-VITAL_COUNT     EQU     10		; Number of vital sign entries in buffer
+; ------ Vital sign ---------------------
+VITAL_SIZE      		EQU     4		; Size of VitalSign structure (4 bytes)
+VITAL_COUNT     		EQU     10		; Number of vital sign entries in buffer
 
-; --- Alert record ---
-ALERT_SIZE      EQU     16		; Size of AlertRecord structure
-ALERT_COUNT     EQU     10		; Number of alert records in buffer
+; ------ Alert record -------------------
+ALERT_SIZE      		EQU     16		; Size of AlertRecord structure
+ALERT_COUNT     		EQU     10		; Number of alert records in buffer
 
-; --- Billing ---
-BILLING_SIZE    EQU     24		; Size of Billing structure
+; ------ Billing ------------------------
+BILLING_SIZE    		EQU     24		; Size of Billing structure
 
-; --- Patient structure offsets ---
+; ------ Patient structure offsets ------
 PATIENT_SIZE            EQU     252
 
 PATIENT_ID_OFF          EQU     0x00
@@ -274,9 +274,9 @@ patient1
         DCB     0                       ; +0x41: alert_flag
         DCB     0                       ; +0x42: dosage_due_flag
         DCB     0                       ; +0x43: padding
-        ; +0x44: alert_buffer[20] - 320 bytes (20 x 16 bytes)
+        ; +0x44: alert_buffer[10] - 160 bytes (10 x 16 bytes)
         SPACE   160
-        ; +0x184: billing structure - 24 bytes
+        ; +0xE4: billing structure - 24 bytes
         DCD     0                       ; treatment_cost
         DCD     0                       ; room_cost
         DCD     0                       ; medicine_cost
@@ -307,9 +307,9 @@ patient2
         DCB     0                       ; +0x41: alert_flag
         DCB     0                       ; +0x42: dosage_due_flag
         DCB     0                       ; +0x43: padding
-        ; +0x44: alert_buffer[20]
+        ; +0x44: alert_buffer[10]
         SPACE   160
-        ; +0x184: billing structure
+        ; +0xE4: billing structure
         DCD     0                       ; treatment_cost
         DCD     0                       ; room_cost
         DCD     0                       ; medicine_cost
@@ -340,9 +340,9 @@ patient3
         DCB     0                       ; +0x41: alert_flag
         DCB     0                       ; +0x42: dosage_due_flag
         DCB     0                       ; +0x43: padding
-        ; +0x44: alert_buffer[20]
+        ; +0x44: alert_buffer[10]
         SPACE   160
-        ; +0x184: billing structure
+        ; +0xE4: billing structure
         DCD     0                       ; treatment_cost
         DCD     0                       ; room_cost
         DCD     0                       ; medicine_cost

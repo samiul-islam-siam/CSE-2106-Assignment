@@ -5,7 +5,6 @@
 
         PRESERVE8
         THUMB
-
         AREA    Module5Code, CODE, READONLY
         
         EXPORT  compute_treatment_cost
@@ -19,7 +18,7 @@
 ; CONSTANTS
 ; ==============================================================================
 TREATMENT_CODE_OFF      EQU     0x09    ; Offset to treatment_code in Patient
-BILLING_OFF             EQU     0xE4   ; Offset to billing structure
+BILLING_OFF             EQU     0xE4    ; Offset to billing structure
 TREATMENT_COST_OFF      EQU     0x00    ; Offset to treatment_cost in Billing
 
 ; ==============================================================================

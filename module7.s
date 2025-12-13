@@ -3,17 +3,16 @@
 ; File: module7.s
 ; ==============================================================================
 
-
 		AREA    Module7_code, CODE, READONLY
         THUMB
 
-MED_ID_OFF             EQU     0x00
-DOSAGE_INTERVAL_OFF    EQU     0x01
-LAST_ADMIN_TIME_OFF    EQU     0x04   ; 4-byte aligned
-UNIT_PRICE_OFF         EQU     0x08   ; 4-byte aligned
-QUANTITY_OFF           EQU     0x0C
-MED_PADDING_OFF        EQU     0x0E
-MEDICINE_SIZE          EQU     0x10   ; 16 bytes total
+MED_ID_OFF              EQU     0x00
+DOSAGE_INTERVAL_OFF     EQU     0x01
+LAST_ADMIN_TIME_OFF     EQU     0x04   ; 4-byte aligned
+UNIT_PRICE_OFF          EQU     0x08   ; 4-byte aligned
+QUANTITY_OFF            EQU     0x0C
+MED_PADDING_OFF         EQU     0x0E
+MEDICINE_SIZE           EQU     0x10   ; 16 bytes total
 
 MEDICINE_LIST_PTR_OFF   EQU     0x10
 MEDICINE_COUNT_OFF      EQU     0x14

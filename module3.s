@@ -9,7 +9,7 @@
         THUMB
 		IMPORT  system_clock
 
-; Offsets (from your data.s)
+; Offsets 
 VITAL_BUFFER_OFF        EQU     0x18
 VITAL_BUFFER_INDEX_OFF  EQU     0x40
 ALERT_COUNT_OFF         EQU     0x15
@@ -18,10 +18,8 @@ ALERT_BUFFER_OFF        EQU     0x44
 
 ; Alert record and limits
 ALERT_RECORD_SIZE       EQU     16
-ALERT_BUFFER_MAX        EQU     10      ; as per C code: alert_buffer[20]
-
-
-        
+ALERT_BUFFER_MAX        EQU     10     
+     
 
 ; void check_vital_thresholds(Patient *patient)
 ; R0 = patient pointer
@@ -68,7 +66,7 @@ got_index
         MOVS    R9, #0                ; vital_type 0 = HR
         MOV     R10, R5               ; actual reading in R10
         BL      create_alert_record
-        ; .create_alert_record returns with no registers guaranteed, continue
+        ; create_alert_record returns with no registers guaranteed, continue
 
 ; -----------------------------
 check_o2
@@ -161,10 +159,6 @@ create_alert_record
 ret_from_create
         BX      LR
 
-        ALIGN   2
-			
-		
+        ALIGN   2	
 
         END
-
-		

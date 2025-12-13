@@ -3,12 +3,11 @@
 ; File: module6.s
 ; ==============================================================================
 
-
 		AREA    Module6_code, CODE, READONLY
         ALIGN   2
         EXPORT  compute_room_cost
 
-; Offsets from data.s (Patient structure)
+; Offsets (Patient structure)
 BILLING_OFF             EQU     0xE4
 ROOM_DAILY_RATE_OFF     EQU     0x0C
 STAY_DAYS_OFF           EQU     0x16

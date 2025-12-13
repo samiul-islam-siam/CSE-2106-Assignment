@@ -3,7 +3,6 @@
 ; File: module8.s
 ; ==============================================================================
 
-
 		AREA    Module8_code, CODE, READONLY
         ALIGN   2
         EXPORT  aggregate_total_bill
@@ -59,6 +58,6 @@ overflow_detected
         STRB    R6, [R0, #BILLING_OFF + OVERFLOW_FLAG_OFF]
 
 done
-        POP     {PC}                ; return
+        POP     {PC}                
         ALIGN   2
         END
