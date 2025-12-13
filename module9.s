@@ -51,12 +51,12 @@ inner_loop
         ; ======================================================================
         MOV     R9, R7
         MOVW    R10, #PATIENT_SIZE
-        MUL     R9, R9, R10             ; R9 = i * 412
+        MUL     R9, R9, R10             ; R9 = i * 252
         ADD     R9, R4, R9              ; R9 = &patient[i]
         
         ADD     R10, R7, #1             ; i + 1
         MOVW    R11, #PATIENT_SIZE
-        MUL     R10, R10, R11           ; R10 = (i+1) * 412
+        MUL     R10, R10, R11           ; R10 = (i+1) * 252
         ADD     R10, R4, R10            ; R10 = &patient[i+1]
         
         ; ======================================================================
@@ -73,13 +73,13 @@ inner_loop
         BGE     no_swap
         
         ; ======================================================================
-        ; SWAP: Exchange entire patient structures (412 bytes)
-        ; We'll swap word by word (4 bytes at a time) = 103 words
+        ; SWAP: Exchange entire patient structures (252 bytes)
+        ; We'll swap word by word (4 bytes at a time) = 63 words
         ; ======================================================================
         PUSH    {R4, R5}                ; Preserve outer loop variables
         
         MOVS    R2, #0                  ; Word counter
-        MOVW    R3, #103                ; 412 / 4 = 103 words
+        MOVW    R3, #63                 ; 252 / 4 = 63 words
         
 swap_loop
         LDR     R4, [R9, R2]            ; Load word from patient[i]
