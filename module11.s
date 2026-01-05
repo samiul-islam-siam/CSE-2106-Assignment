@@ -5,11 +5,7 @@
 
         PRESERVE8
         THUMB
-        
-; ==============================================================================
-; DATA SECTION - Error Printing Strings
-; ==============================================================================
-        AREA    Module11_Code, DATA, READWRITE
+        AREA    Module11_data, DATA, READWRITE
 
 ; Error log printing strings
 nl_err      DCB     0x0A,0
@@ -44,7 +40,7 @@ int_buf     DCB     "                      ",0
 ; ==============================================================================
 ; CODE SECTION
 ; ==============================================================================
-        AREA    Module11Code, CODE, READONLY
+        AREA    Module11_Code, CODE, READONLY
         
         EXPORT  check_sensor_malfunction
         EXPORT  check_invalid_dosage
@@ -67,7 +63,7 @@ int_buf     DCB     "                      ",0
         IMPORT  SENSOR_SBP
         IMPORT  SENSOR_DBP
         IMPORT  patient_array
-        IMPORT  ITM_SendChar_C
+        IMPORT  ITM_SendChar
 
 ; ==============================================================================
 ; CONSTANTS
@@ -77,7 +73,7 @@ ERROR_INVALID_DOSAGE        EQU     0x02
 ERROR_MEMORY_OVERFLOW       EQU     0x03
 
 ERROR_RECORD_SIZE           EQU     16
-MAX_ERROR_RECORDS           EQU     50
+MAX_ERROR_RECORDS           EQU     20
 
 MEDICINE_LIST_PTR_OFF       EQU     0x10
 MEDICINE_COUNT_OFF          EQU     0x14
@@ -85,8 +81,8 @@ UNIT_PRICE_OFF              EQU     0x08
 QUANTITY_OFF                EQU     0x0C
 MEDICINE_SIZE               EQU     0x10
 
-PATIENT_ARRAY_MAX           EQU     0x20000100
-BILLING_OFF                 EQU     0x184
+PATIENT_ARRAY_MAX           EQU     0x21000000;----------------Memory Overflow error here---------------------
+BILLING_OFF                 EQU     0xE4
 TOTAL_BILL_OFF              EQU     0x10
 PATIENT_ID_OFF              EQU     0x00
 
@@ -351,7 +347,7 @@ log_error_to_flash PROC
         STR     R7, [R8, #8]
         
         LDR     R2, =patient_array
-        MOV     R3, #152
+        MOV     R3, #252
         MUL     R3, R5, R3
         ADD     R2, R2, R3
         LDR     R2, [R2, #PATIENT_ID_OFF]
@@ -599,7 +595,7 @@ pes_loop
         BEQ     pes_done
         MOV     r4, r0
         MOV     r0, r1
-        BL      ITM_SendChar_C
+        BL      ITM_SendChar
         MOV     r0, r4
         ADDS    r0, #1
         B       pes_loop
@@ -615,7 +611,7 @@ PrintErrInt PROC
         CMP     r4, #0
         BNE     pei_loop
         MOVS    r0, #48
-        BL      ITM_SendChar_C
+        BL      ITM_SendChar
         POP     {r4-r7, pc}
 pei_loop
         CMP     r4, #0
@@ -635,7 +631,7 @@ pei_print_loop
         CMP     r6, #0
         BLT     pei_done
         LDRB    r0, [r5, r6]
-        BL      ITM_SendChar_C
+        BL      ITM_SendChar
         SUBS    r6, #1
         B       pei_print_loop
 pei_done

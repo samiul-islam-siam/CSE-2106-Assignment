@@ -5,7 +5,6 @@
 
         PRESERVE8
         THUMB
-
         AREA    Module2_Code, CODE, READONLY
         
         EXPORT  acquire_vital_signs
@@ -63,9 +62,9 @@ acquire_vital_signs PROC
         ; STEP 3: Calculate buffer position
         ; vital_buffer[index] offset = VITAL_BUFFER_OFF + (index * 4)
         ; ======================================================================
-        LSL     R2, R1, #2              ; R2 = index * 4 (multiply by VITAL_SIZE)
+        LSL     R2, R1, #2                ; R2 = index * 4 (multiply by VITAL_SIZE)
         ADD     R2, R2, #VITAL_BUFFER_OFF ; R2 = complete offset
-        ADD     R0, R4, R2              ; R0 = address of vital_buffer[index]
+        ADD     R0, R4, R2                ; R0 = address of vital_buffer[index]
         
         ; ======================================================================
         ; STEP 4: Store vital signs (4 bytes)
