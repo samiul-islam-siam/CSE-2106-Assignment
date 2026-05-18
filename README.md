@@ -8,20 +8,6 @@ This project implements the SmartCare-32 Healthcare Monitoring & Billing System 
 - **Module 5**: Treatment Cost Computation  
 - **Module 9**: Sorting Patients by Criticality
 
----
-
-## Table of Contents
-
-1. [File Structure](#file-structure)
-2. [Conversion Strategy](#conversion-strategy)
-3. [Memory Layout Diagrams](#memory-layout-diagrams)
-4. [Register Allocation Tables](#register-allocation-tables)
-5. [Algorithm Explanations](#algorithm-explanations)
-6. [Testing Approach](#testing-approach)
-7. [Keil uVision Setup](#keil-uvision-setup)
-
----
-
 ## File Structure
 
 | File | Description |
@@ -33,8 +19,6 @@ This project implements the SmartCare-32 Healthcare Monitoring & Billing System 
 | `main.s` | Main integration program |
 | `microlab.c` | Original C reference implementation |
 | `README.md` | This documentation file |
-
----
 
 ## Conversion Strategy
 
@@ -87,8 +71,6 @@ function_name PROC
     POP     {R4-R7, PC}     ; Restore and return
     ENDP
 ```
-
----
 
 ## Memory Layout Diagrams
 
@@ -173,8 +155,6 @@ Total: 412 bytes (0x19C)
 └───────┴──────────────────┴─────────┘
 ```
 
----
-
 ## Register Allocation Tables
 
 ### Module 2: acquire_vital_signs
@@ -218,8 +198,6 @@ Total: 412 bytes (0x19C)
 | R10 | Address of patients[j] |
 | R11 | Address of patients[j+1] |
 | LR | Return address |
-
----
 
 ## Algorithm Explanations
 
@@ -320,8 +298,6 @@ After sorting (descending by alerts):
 └─────────┴─────────┴─────────┘
 ```
 
----
-
 ## Testing Approach
 
 ### Test Data Configuration
@@ -341,90 +317,3 @@ Three patients are pre-configured in `data.s`:
 | John | 125 | 88 | 135 | 85 | High HR, Low O2 |
 | Jane | 78 | 98 | 120 | 80 | Normal |
 | Bob | 165 | 85 | 170 | 95 | Critical |
-
-### Verification Steps
-
-1. **Module 2 Testing**:
-   - Set breakpoint after `acquire_vital_signs`
-   - Verify `vital_buffer[index]` contains correct sensor values
-   - Verify `vital_buffer_index` increments and wraps at 10
-
-2. **Module 5 Testing**:
-   - Set breakpoint after `compute_treatment_cost`
-   - Verify `billing.treatment_cost` matches expected values
-   - Test invalid code (>15) returns 0
-
-3. **Module 9 Testing**:
-   - Set breakpoint after `sort_patients_by_criticality`
-   - Verify patient order: Bob (5), John (2), Jane (0)
-   - Verify all patient data intact after swap
-
-### Memory Inspection Points
-
-| Address | Expected Value | Description |
-|---------|---------------|-------------|
-| `patient_array + 0x184` | 25000 | Patient 1 treatment cost |
-| `patient_array + PATIENT_SIZE + 0x184` | 50000 | Patient 2 treatment cost |
-| `patient_array + 2*PATIENT_SIZE + 0x184` | 30000 | Patient 3 treatment cost |
-
----
-
-## Keil uVision Setup
-
-### Project Configuration
-
-1. **Create New Project**:
-   - File → New → μVision Project
-   - Select device: ARM Cortex-M4 (e.g., STM32F407)
-
-2. **Add Source Files**:
-   - Right-click Source Group → Add Existing Files
-   - Add: `main.s`, `data.s`, `module2.s`, `module5.s`, `module9.s`
-
-3. **Configure Target**:
-   - Project → Options for Target
-   - Device tab: Select Cortex-M4 processor
-   - Target tab: Set IROM1 and IRAM1 addresses
-
-4. **Assembler Settings**:
-   - Asm tab: Enable "Thumb Mode"
-   - Misc Controls: `--cpu Cortex-M4`
-
-### Build and Debug
-
-1. **Build Project**: Project → Build Target (F7)
-2. **Start Debug Session**: Debug → Start/Stop Debug Session (Ctrl+F5)
-3. **Set Breakpoints**: Click in left margin of source file
-4. **Run**: Debug → Run (F5)
-5. **Step Through**: Debug → Step (F11)
-
-### Memory View Configuration
-
-- View → Memory Windows → Memory 1
-- Enter address: `0x20000000` (RAM start)
-- View patient structures and verify values
-
-### Watch Window
-
-Add these symbols to watch:
-- `patient_array`
-- `system_clock`
-- `treatment_cost_table`
-
----
-
-## Success Criteria Checklist
-
-- ✅ All files compile without errors in Keil uVision
-- ✅ Proper structure alignment and memory management
-- ✅ Modular design with EXPORT/IMPORT directives
-- ✅ Comments explaining every major operation
-- ✅ Test data produces expected results
-- ✅ Code follows ARM Cortex-M4 conventions
-- ✅ Comprehensive documentation included
-
----
-
-## Author
-
-CSE 2106: Microprocessor and Assembly Language Lab Assignment
